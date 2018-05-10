@@ -1,0 +1,20 @@
+variables:
+  LANG: "C.UTF-8"
+  CI_DEBUG_TRACE: "true"
+  GIT_STRATEGY: clone
+
+.test-template: &test-common
+  services:
+    - name: vault:latest
+      command: ["server", "-dev", "-dev-root-token-id=514c55f0-c452-99e3-55e0-8301b770b92c"]
+
+  before_script:
+    - gem update --system --no-document
+    - gem install bundler --no-ri --no-rdoc
+    - bundle install -j $(nproc) --path vendor --retry 3
+
+test:2.5:
+  image: "ruby:2.5"
+  <<: *test-common
+  script:
+    - bundle exec rake
