@@ -14,18 +14,6 @@ module Sanctum
     subcommand_option_handling :normal
     arguments :strict
 
-    desc 'Force pull or push changes'
-    default_value false
-    switch [:force]
-
-    desc 'Comma seperated list of target application[s]'
-    arg_name 'target_app'
-    flag [:t, :targets]
-
-    desc 'Specify a custom config file'
-    arg_name 'config_file'
-    flag [:c, :config]
-
     desc 'Checks differences that exist'
     command :check do |c|
       c.desc 'Comma seperated list of target application[s]'
