@@ -7,6 +7,24 @@ module Sanctum
   class CLI
     extend GLI::App
 
+    def self.common_options(c, *opts)
+      opts.map(&:to_sym).each do |opt|
+        case opt
+        when :config
+          c.desc 'specify config file'
+          c.flag :c, :config
+        when :targets
+          c.desc 'Comma seperated list of target application[s]'
+          c.flag :t, :targets
+        when :force
+          c.desc 'Force, will not ask you to confirm differences'
+          c.switch :force
+        else
+          raise "unrecognized option #{opt.inspect}"
+        end
+      end
+    end
+
     program_desc 'Simple and secure filesystem-to-Vault secrets synchronization'
 
     version VERSION
@@ -16,11 +34,7 @@ module Sanctum
 
     desc 'Checks differences that exist'
     command :check do |c|
-      c.desc 'Comma seperated list of target application[s]'
-      c.flag :t, :targets
-
-      c.desc 'specify config file'
-      c.flag :c, :config
+      common_options c, :targets, :config
       c.action do |global_options,options,args|
         Command::Check.new(@options_hash).run
       end
@@ -28,14 +42,7 @@ module Sanctum
 
     desc 'Pull in secrets that already exist in Vault.'
     command :pull do |c|
-      c.desc 'Comma seperated list of target application[s]'
-      c.flag :t, :targets
-
-      c.desc 'specify a config file'
-      c.flag :c, :config
-
-      c.desc 'Force pull from vault (clobbering local changes)'
-      c.switch :force
+      common_options c, :targets, :config, :force
       c.action do |global_options,options,args|
         Command::Pull.new(@options_hash).run
       end
@@ -43,14 +50,7 @@ module Sanctum
 
     desc 'Synchronize secrets to Vault'
     command :push do |c|
-      c.desc 'Comma seperated list of target application[s]'
-      c.flag :t, :targets
-
-      c.desc 'specify a config file'
-      c.flag :c, :config
-
-      c.desc 'Force push to vault (clobbering whats in vault)'
-      c.switch :force
+      common_options c, :targets, :config, :force
       c.action do |global_options,options,args|
         Command::Push.new(@options_hash).run
       end
@@ -67,12 +67,7 @@ module Sanctum
     desc 'Create an encrypted file'
     arg_name 'path/to/file'
     command :create do |c|
-      c.desc 'Comma seperated list of target application[s]'
-      c.flag :t, :targets
-
-      c.desc 'specify a config file'
-      c.flag :c, :config
-
+      common_options c, :config
       c.action do |global_options,options,args|
         Command::Create.new(@options_hash, args).run
       end
@@ -81,12 +76,7 @@ module Sanctum
     desc 'View encrypted file[s]'
     arg_name 'path/to/file'
     command :view do |c|
-      c.desc 'Specify a target application(required when specifying transit_key on a per app basis)'
-      c.flag :t, :target
-
-      c.desc 'specify a config file'
-      c.flag :c, :config
-
+      common_options c, :config
       c.action do |global_options,options,args|
         if args.empty?
           help_now! "Please specify at least one argument"
@@ -98,11 +88,7 @@ module Sanctum
     desc 'Edit an encrypted file'
     arg_name 'path/to/file'
     command :edit do |c|
-      c.desc 'Comma seperated list of target application[s]'
-      c.flag :t, :targets
-
-      c.desc 'specify a config file'
-      c.flag :c, :config
+      common_options c, :config
 
       c.action do |global_options,options,args|
         Command::Edit.new(@options_hash, args).run
