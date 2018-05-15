@@ -25,17 +25,11 @@ using the sanctum gem, you could run `sanctum pull`. Depending on the path you s
 
 ## Installation
 
-Add this line to your application's Gemfile:
+From source:
 
-```ruby
-gem 'sanctum'
-```
+    $ bundle install && bundle exec rake:install
 
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
+Or install rubygems:
 
     $ gem install sanctum
 
@@ -108,7 +102,7 @@ If you ever need to restore the key, you can restore using the restore endpoint
 
 transit_key.json would look something like
 ```
-{"backup":"<your_long_key"}
+{"backup":"<your_long_key>"}
 ```
 One thing that is nice, is that you can use this method to restore to a locally running vault instance.
 This would allow you to be able to quickly decrypt local secrets in a disaster recovery event.
@@ -129,4 +123,3 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/Corban
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
->>>>>>> Initial commit
