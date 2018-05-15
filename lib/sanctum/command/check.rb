@@ -1,35 +1,25 @@
 module Sanctum
   module Command
-    class Check
-      include Colorizer
-      attr_reader :options
-
-      def initialize(options)
-        @options = options
-      end
+    class Check < Base
 
       def run
         phelp = PathsHelper.new
-        vault_client = VaultClient.new(options[:vault][:url], options[:vault][:token]).vault_client
-
-        apps = options[:sync]
 
         apps.each do |h|
-          # Use app specific transit key if specified via config
-          h.has_key?(:transit_key) ? transit_key = h[:transit_key] : transit_key = options[:vault][:transit_key]
           # Recursively get local files for each prefix specified in sanctum.yaml
-          local_paths = phelp.get_local_paths(File.join(File.dirname(options[:config_file]), h[:path]))
+          local_paths = phelp.get_local_paths(File.join(File.dirname(config_file), h[:path]))
           # Read each file
           local_secrets = phelp.read_local_files(local_paths)
           # Decrypt each secret
           @local_secrets = VaultTransit.decrypt(vault_client, local_secrets, transit_key)
 
           # Recursively get vault secrets for each prefix specified in sanctum.yaml
-          VaultSecrets.get(vault_client, h[:prefix]).each do |k,v|
+          secrets_list = VaultSecrets.new(vault_client, h[:prefix]).get
+          secrets_list.each do |k, v|
             # Build local paths based on prefix and paths specified in sanctum.yaml
             vault_secrets = phelp.build_path(v, [h[:path]])
             # Join the path array to create a path
-            @vault_secrets = phelp.join_path(vault_secrets, options[:config_file])
+            @vault_secrets = phelp.join_path(vault_secrets, config_file)
           end
           compare_local_to_vault(@vault_secrets, @local_secrets, h[:name])
         end

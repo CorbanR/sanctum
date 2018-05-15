@@ -2,28 +2,28 @@ require 'fileutils'
 
 module Sanctum
   module Command
-    class Config
-      include Colorizer
+    class Config < Base
 
-      attr_reader :config_file, :example_file
-      def initialize
-        working_dir = Dir.pwd
+      attr_reader :config_path, :example_file
+
+      def initialize(working_dir=Dir.pwd)
         relative_path = File.expand_path File.dirname(__FILE__)
-        @config_file = "#{working_dir}/sanctum.yaml"
+        @config_path = "#{working_dir}/sanctum.yaml"
         @example_file = "#{relative_path}/sanctum.example.yaml"
+        super
       end
 
       def run
-        raise yellow("config file already exists") if config_exist?(config_file)
-        create_config_file(example_file, config_file)
+        raise yellow("config file already exists") if config_exist?
+        create_config_file
       end
 
-      def config_exist?(config_file)
-        File.file?(config_file)
+      def config_exist?
+        File.file?(config_path)
       end
 
-      def create_config_file(example_file, config_file)
-        FileUtils.cp(example_file, config_file)
+      def create_config_file
+        FileUtils.cp(example_file, config_path)
       end
 
     end

@@ -11,7 +11,7 @@ RSpec.describe Sanctum::Command::Check do
               :sync=>[{:name=>"vault-test", :prefix=>"vault-test", :path=>"vault/vault-test"}],
               :cli=>{:targets=>nil, :force=>true}}
   }
-  let(:vault_client) {Sanctum::VaultClient.new(vault_addr, vault_token).vault_client}
+  let(:vault_client) {Sanctum::VaultClient.build(vault_addr, vault_token)}
   let(:vault_env) { {"VAULT_ADDR" => vault_addr, "VAULT_TOKEN" => vault_token} }
 
   before :each do

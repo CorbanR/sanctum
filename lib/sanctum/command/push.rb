@@ -4,33 +4,21 @@ require 'json'
 
 module Sanctum
   module Command
-    class Push
-      include Colorizer
-      attr_reader :options
-
-      def initialize(options)
-        @options = options
-      end
+    class Push < Base
 
       def run
         phelp = PathsHelper.new
-        @config_path = options[:config_file]
-        vault_client = VaultClient.new(options[:vault][:url], options[:vault][:token]).vault_client
-
-        apps = options[:sync]
 
         apps.each do |h|
-          h.has_key?(:transit_key) ? transit_key = h[:transit_key] : transit_key = options[:vault][:transit_key]
-
           # Use command line if force: true
           if options[:cli][:force]
             force = options[:cli][:force]
           else
-            h.has_key?(:force) ? force = h[:force] : force = options[:sanctum][:force]
+            force = h.fetch(:force) {options[:sanctum][:force]}
           end
 
           # Recursively get local files for each prefix specified in sanctum.yaml
-          local_paths = phelp.get_local_paths(File.join(File.dirname(@config_path), h[:path]))
+          local_paths = phelp.get_local_paths(File.join(File.dirname(config_file), h[:path]))
           # Read each local file
           local_secrets = phelp.read_local_files(local_paths)
           # Decrypt local secrets
@@ -38,7 +26,7 @@ module Sanctum
 
           if force
             warn red("Forcefully pushing local secrets for #{h[:name]} to vault")
-            local_secrets = local_secrets.map {|k, v| [k.gsub(File.join(File.dirname(@config_path), h[:path]), h[:prefix]), v] }.to_h
+            local_secrets = local_secrets.map {|k, v| [k.gsub(File.join(File.dirname(config_file), h[:path]), h[:prefix]), v] }.to_h
             VaultTransit.write_to_vault(vault_client, local_secrets)
           else
             # Get vault secrets (if they exist) for each prefix specified in sanctum.yaml and local paths
@@ -48,19 +36,19 @@ module Sanctum
             # Example: Sync would delete secrets that exist in vault but not locally
 
             # Map local_paths into vault_paths
-            vault_paths = local_paths.map{|x| x.gsub(File.join(File.dirname(@config_path), h[:path]), "")}
+            vault_paths = local_paths.map{|x| x.gsub(File.join(File.dirname(config_file), h[:path]), "")}
             # Read secrets from vault
-            vault_secrets = read_remote(vault_client, vault_paths, h[:prefix])
+            vault_secrets = read_remote(vault_paths, h[:prefix])
             # To make comparing a bit easier map vault_secrets paths back local_paths
             # Convert to json, then read, to make keys strings vs symbols
             vault_secrets = JSON(join_path(vault_secrets, h[:path]).to_json)
             # Compare
-            compare_local_to_vault(vault_client, vault_secrets, local_secrets, transit_key, h)
+            compare_local_to_vault(vault_secrets, local_secrets, h)
           end
         end
       end
 
-      def read_remote(vault_client, paths, prefix)
+      def read_remote(paths, prefix)
         tmp_hash = Hash.new
         paths.each do |k,v|
           p = File.join(prefix, k)
@@ -76,7 +64,7 @@ module Sanctum
 
       # TODO Rename, so method doesn't match phelp.join_path
       def join_path(secrets, local_path)
-        config_path = Pathname.new(@config_path)
+        config_path = Pathname.new(config_file)
         tmp_hash = Hash.new
 
         secrets.map do |p, v|
@@ -86,7 +74,7 @@ module Sanctum
         tmp_hash
       end
 
-      def compare_local_to_vault(vault_client, vault_secrets, local_secrets, transit_key, h)
+      def compare_local_to_vault(vault_secrets, local_secrets, h)
         if vault_secrets == local_secrets
           puts yellow("Application #{h[:name]}: contains no differences")
         else
@@ -117,7 +105,7 @@ module Sanctum
             local_secrets = only_changes(diff_paths, local_secrets)
             #Convert path back to vault prefix
             #TODO figure out a better way to do this...
-            local_secrets = local_secrets.map {|k, v| [k.gsub(File.join(File.dirname(@config_path), h[:path]), h[:prefix]), v] }.to_h
+            local_secrets = local_secrets.map {|k, v| [k.gsub(File.join(File.dirname(config_file), h[:path]), h[:prefix]), v] }.to_h
             VaultTransit.write_to_vault(vault_client, local_secrets)
           end
         end

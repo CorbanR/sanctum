@@ -5,35 +5,18 @@ require 'json'
 
 module Sanctum
   module Command
-    class Edit
-      include Colorizer
-      attr_reader :options, :args
-
-      def initialize(options, args)
-        @options = options
-        @args = args
-      end
+    class Edit < Base
 
       def run(&block)
-        vault_client = VaultClient.new(options[:vault][:url], options[:vault][:token]).vault_client
-        target = options[:cli][:targets]
-        transit_key = options[:vault][:transit_key]
-
-        unless target.nil?
-          app = options[:sync].find {|x| x[:name] == "#{target[0]}"}
-          transit_key = app[:transit_key] if app.has_key?(:transit_key)
-        end
-
-        if args.length == 1
+        if args.one?
           path = args[0]
-          edit_file(path, vault_client, transit_key, &block)
+          edit_file(path, &block)
         end
       end
 
       private
-      def edit_file(path, vault_client, transit_key)
+      def edit_file(path)
         e = EditorHelper.new
-        editor = ENV['EDITOR']
         tmp_file = Tempfile.new(File.basename(path))
 
         begin
@@ -47,22 +30,26 @@ module Sanctum
           if block_given?
             yield tmp_file
           else
+            previous_contents = File.read(tmp_file.path)
+            editor = ENV.fetch('EDITOR', 'vi')
             raise red("Error with editor") unless system(editor, tmp_file.path )
           end
           contents = File.read(tmp_file.path)
 
-          if e.valid?(contents)
-            #TODO: Figure out a better way to very yaml...
-            data_hash = {"#{tmp_file.path}" => JSON.parse(contents)} if e.valid_json?(contents)
-            data_hash = {"#{tmp_file.path}" => YAML.load(contents)} if e.valid_yaml?(contents)
-
+          # Only write contents if something changed
+          unless contents == previous_contents
+            data_hash = {"#{tmp_file.path}" => e.validate(contents)}
             e.write_encrypted_data(vault_client, data_hash, transit_key)
             tmp_file.close
 
             FileUtils.cp(tmp_file.path, path)
-          else
-            raise yellow("Please ensure contents are valid json or yaml")
           end
+
+        rescue
+          # If e.write_encrypted_data failed, data would fail to write to disk
+          # It would be sad to lose that data, at least this would print the contents to the console.
+          puts red("Contents may have failed to write")
+          puts red(contents)
         ensure
           tmp_file.close
           e.secure_erase(tmp_file.path, tmp_file.length)

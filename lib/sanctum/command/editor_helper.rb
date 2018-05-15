@@ -5,6 +5,7 @@ require 'json'
 module Sanctum
   module Command
     class EditorHelper
+      include Colorizer
 
       def decrypt_data(vault_client, data, transit_key)
         VaultTransit.decrypt(vault_client, data, transit_key)
@@ -14,24 +15,22 @@ module Sanctum
         VaultTransit.write_to_file(vault_client, data, transit_key)
       end
 
-      def valid?(contents)
-        valid_json?(contents) or valid_yaml?(contents)
+      def validate(contents)
+        validate_json(contents) || validate_yaml(contents) || raise
+      rescue
+        fail red("Invalid Contents")
       end
 
-      def valid_json?(json)
+      def validate_json(json)
         JSON.parse(json)
-        return true
-      rescue JSON::ParserError => e
-        e.message
-        return false
+      rescue JSON::ParserError
+        nil
       end
 
-      #TODO is there a better way to do this?
-      def valid_yaml?(yaml)
-        return true if YAML.load(yaml)
-      rescue YAML::SyntaxError => e
-        e.message
-        return false
+      def validate_yaml(yaml)
+        YAML.load(yaml)
+      rescue YAML::SyntaxError
+        nil
       end
 
       #TODO: research this a bit more.. to ensure this is sufficient

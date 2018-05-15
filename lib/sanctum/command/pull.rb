@@ -3,36 +3,27 @@ require 'hashdiff'
 
 module Sanctum
   module Command
-    class Pull
-      include Colorizer
-      attr_reader :options
-
-      def initialize(options)
-        @options = options
-      end
+    class Pull < Base
 
       def run
         phelp = PathsHelper.new
-        vault_client = VaultClient.new(options[:vault][:url], options[:vault][:token]).vault_client
-        apps = options[:sync]
 
         apps.each do |h|
-          h.has_key?(:transit_key) ? transit_key = h[:transit_key] : transit_key = options[:vault][:transit_key]
-
           # Use command line if force: true
           if options[:cli][:force]
             force = options[:cli][:force]
           else
-            h.has_key?(:force) ? force = h[:force] : force = options[:sanctum][:force]
+            force = h.fetch(:force) {options[:sanctum][:force]}
           end
 
           # Recursively get vault secrets for each prefix specified in sanctum.yaml
-          VaultSecrets.get(vault_client, h[:prefix]).each do |k,v|
+          secrets_list = VaultSecrets.new(vault_client, h[:prefix]).get
+          secrets_list.each do |k,v|
             # Build local paths based on prefix and paths specified in sanctum.yaml
             vault_secrets = phelp.build_path(v, [h[:path]])
 
             # Join the path array to create a path
-            vault_secrets = phelp.join_path(vault_secrets, options[:config_file])
+            vault_secrets = phelp.join_path(vault_secrets, config_file)
 
             # Ensure local paths exist, relative to sanctum.yaml if they don't create them
             create_paths(vault_secrets)
@@ -48,7 +39,7 @@ module Sanctum
             else
               # Decrypt local_secrets and compare differences
               local_secrets = VaultTransit.decrypt(vault_client, local_secrets, transit_key)
-              compare_local_to_vault(vault_client, vault_secrets, local_secrets, transit_key, h[:name])
+              compare_local_to_vault(vault_secrets, local_secrets, h[:name])
             end
 
           end
@@ -65,7 +56,7 @@ module Sanctum
         end
       end
 
-      def compare_local_to_vault(vault_client, vault_secrets, local_secrets, transit_key, name)
+      def compare_local_to_vault(vault_secrets, local_secrets, name)
         unless vault_secrets == local_secrets
           puts yellow("Application #{name}: contains the following differences")
           puts

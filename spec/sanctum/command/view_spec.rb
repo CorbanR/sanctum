@@ -3,7 +3,7 @@ RSpec.describe Sanctum::Command::View do
   let(:vault_token) {"514c55f0-c452-99e3-55e0-8301b770b92c"}
   let(:vault_addr) {"http://127.0.0.1:8200"}
   let(:vault_env) { {"VAULT_ADDR" => vault_addr, "VAULT_TOKEN" => vault_token} }
-  let(:vault_client) {Sanctum::VaultClient.new(vault_addr, vault_token).vault_client}
+  let(:vault_client) {Sanctum::VaultClient.build(vault_addr, vault_token)}
   let(:args) {["#{config_path}/encrypted_file"]}
   let(:options) {
     {:config_file=>"#{config_path}/sanctum.yaml",

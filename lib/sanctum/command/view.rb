@@ -2,24 +2,9 @@ require 'yaml'
 
 module Sanctum
   module Command
-    class View
-      include Colorizer
-      attr_reader :options, :args
-
-      def initialize(options, args)
-        @options = options
-        @args = args
-      end
+    class View < Base
 
       def run(command="less")
-        vault_client = VaultClient.new(options[:vault][:url], options[:vault][:token]).vault_client
-        target = options[:cli][:targets]
-        transit_key = options[:vault][:transit_key]
-
-        unless target.nil?
-          app = options[:sync].find {|x| x[:name] == "#{target[0]}"}
-          transit_key = app[:transit_key] if app.has_key?(:transit_key)
-        end
 
         unless args.empty?
           local_secrets = read_local(args)
