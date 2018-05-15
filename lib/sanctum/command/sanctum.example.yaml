@@ -1,8 +1,7 @@
 # sanctum.yml
 sanctum:
   # force - defaults to false. Setting to true modifies behavior of push and pull commands.
-  #   If true, pull command will overwrite local secrets with whats currently in vault.
-  #   If true, push command will overwrite vault with local secrets.
+  #   If true you will not be asked if you want to overwrite changes.
   #force: false
   # color - defaults to true. Setting to false will disable color to tty
   #color: true
@@ -12,7 +11,9 @@ vault:
   #url: http://localhost:8200
   # token - (required) will use `ENV["VAULT_TOKEN"]` if available, otherwise tries to read from `ENV["HOME"]/.vault-token`
   #token: aaabbbcc-ddee-ffgg-hhii-jjkkllmmnnoop
-  # transit_key - (required) Transit key ring used to encrypt/decrypt secrets for local storage. Can be overridden on a per app basis.
+  # transit_key - (required) will use `ENV["VAULT_TRANSIT_KEY"]` if available.
+  #   Transit key ring used to encrypt/decrypt secrets for local storage.
+  #   If you need to use multiple transit_keys you will need to create seperate config files
   #transit_key: transit/keys/app-foo
 
 sync:
@@ -26,10 +27,7 @@ sync:
   #       the configuration file.
   #     force - Whether or not to force push, pull actions (no user input)
   #       This inherits the setting from the `sanctum` section.
-  #     transit_key - transit key ring used to encrypt/decrypt secrets for local storage
-  #       This inherits the setting from the `sanctum` section.
   #- name: app-foo
     #prefix: secrets/app-foo
     #path: vault/app-foo
-    #transit_key: transit/keys/app-foo
     #force: false
