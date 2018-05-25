@@ -14,6 +14,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = "https://github.com/CorbanR/sanctum"
   spec.license       = "MIT"
   spec.metadata      = {"documentation_uri" => "https://github.com/CorbanR/sanctum"}
+  spec.required_ruby_version = '>=2.5.0'
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
