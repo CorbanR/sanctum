@@ -1,0 +1,3 @@
+#!/usr/bin/env ruby
+require 'sanctum'
+exit Sanctum::CLI.run(ARGV)

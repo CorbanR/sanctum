@@ -1,0 +1,33 @@
+# sanctum.yml
+sanctum:
+  # force - defaults to false. Setting to true modifies behavior of push and pull commands.
+  #   If true you will not be asked if you want to overwrite changes.
+  #force: false
+  # color - defaults to true. Setting to false will disable color to tty
+  #color: true
+
+vault:
+  # url - will use `ENV["VAULT_ADDR"]` if available, otherwise defaults to http://localhost:8200
+  #url: http://localhost:8200
+  # token - (required) will use `ENV["VAULT_TOKEN"]` if available, otherwise tries to read from `ENV["HOME"]/.vault-token`
+  #token: aaabbbcc-ddee-ffgg-hhii-jjkkllmmnnoop
+  # transit_key - (required) will use `ENV["SANCTUM_TRANSIT_KEY"]` if available.
+  #   Transit key ring used to encrypt/decrypt secrets for local storage.
+  #   If you need to use multiple transit_keys you will need to create seperate config files
+  #transit_key: transit/keys/app-foo
+
+sync:
+  # sync is an array of hashes of sync target configurations
+  # at least one app definition is REQUIRED Fields:
+  #     name - (required) Friendly name of the sync target.
+  #     prefix - (required) The vault prefix(secret mount) to synchronize to.
+  #     path - (required) The relative filesystem path to the directory
+  #       containing the files with content to synchronize to Vault.
+  #       This path is calculated relative to the directory containing
+  #       the configuration file.
+  #     force - Whether or not to force push, pull actions (no user input)
+  #       This inherits the setting from the `sanctum` section.
+  #- name: app-foo
+    #prefix: secrets/app-foo
+    #path: vault/app-foo
+    #force: false
