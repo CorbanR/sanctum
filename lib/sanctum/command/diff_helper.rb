@@ -38,15 +38,16 @@ module Sanctum
         end
       end
 
-      def user_input
-        puts
-        puts yellow("Would you like to continue?: ")
+      def confirmed_with_user?
+        puts yellow("\nWould you like to continue?: ")
         question = STDIN.gets.chomp.upcase
 
-        unless ["Y", "YES"].include? question
-          raise yellow("Quitting....")
-        else
+        if ["Y", "YES"].include? question
           puts yellow("Overwriting differences")
+          true
+        else
+          warn yellow("Skipping....\n")
+          false
         end
       end
 

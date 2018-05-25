@@ -35,11 +35,11 @@ module Sanctum
           vault_secrets = vault_secrets.map {|k, v| [k.gsub(File.join(File.dirname(config_file), target[:path]), target[:prefix]), v] }.to_h
 
           if force
-            warn red("Forcefully pushing local secrets for #{target[:name]} to vault")
+            warn red("#{target[:name]}: Forcefully writing differences to vault(push)")
             VaultTransit.write_to_vault(vault_client, vault_secrets)
           else
-            #ask user for input, and write to local file if approved
-            user_input
+            #Confirm with user, and write to local file if approved
+            next unless confirmed_with_user?
             VaultTransit.write_to_vault(vault_client, vault_secrets)
           end
         end

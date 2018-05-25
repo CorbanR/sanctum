@@ -32,11 +32,11 @@ module Sanctum
 
             if force
               # Write files to disk and encrypt with transit
-              warn yellow("Pulling vault secrets for #{target[:name]} and forcefully writing to local files")
+              warn red("#{target[:name]}: Forcefully writing differences to disk(pull)")
               VaultTransit.write_to_file(vault_client, vault_secrets, transit_key)
             else
-              #ask user for input, and write to local file if approved
-              user_input
+              #Confirm with user, and write to local file if approved
+              next unless confirmed_with_user?
               VaultTransit.write_to_file(vault_client, vault_secrets, transit_key)
             end
           end
