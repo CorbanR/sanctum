@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sanctum (0.1.0)
+    sanctum (0.8.0)
       gli (~> 2)
       hashdiff (~> 0)
       vault (~> 0)
@@ -46,4 +46,4 @@ DEPENDENCIES
   sanctum!
 
 BUNDLED WITH
-   1.16.1
+   1.16.2
