@@ -3,9 +3,10 @@ require 'pathname'
 
 module Sanctum
   module Command
-    class PathsHelper
+    module PathsHelper
 
       #Helper methods for building, reading and joining paths
+      private
       def build_path_helper(hash, path = [])
         if hash.values.any? { |k| !k.is_a?(Hash) }
           [path, hash]
@@ -16,6 +17,7 @@ module Sanctum
         end
       end
 
+      public
       def build_path(hash, path = [])
         build_path_helper(hash, path).each_slice(2).to_h
       end
@@ -47,7 +49,7 @@ module Sanctum
         Find.find(paths) do |path|
           if FileTest.file?(path)
             tmp_array << path
-            if File.basename(path)[0] ==?.
+            if File.basename(path).start_with?(?.)
               Find.prune
             else
               next

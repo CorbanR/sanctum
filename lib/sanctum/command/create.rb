@@ -1,7 +1,8 @@
 require 'fileutils'
+require 'json'
+require 'pathname'
 require 'tempfile'
 require 'yaml'
-require 'json'
 
 module Sanctum
   module Command
@@ -10,17 +11,15 @@ module Sanctum
       def run(&block)
         if args.one?
           path = args[0]
-          if File.exist?(path)
-            raise yellow("File exists, use edit command")
-          end
+          validate_path(path)
           create_file(path, &block)
+        else
+          raise ArgumentError, red('Please pass only one path argument')
         end
-
       end
 
       private
       def create_file(path)
-        e = EditorHelper.new
         tmp_file = Tempfile.new(File.basename(path))
 
         begin
@@ -32,21 +31,27 @@ module Sanctum
           end
 
           contents = File.read(tmp_file.path)
-          data_hash = {"#{tmp_file.path}" => e.validate(contents)}
-          e.write_encrypted_data(vault_client, data_hash, transit_key)
+          data_hash = {"#{tmp_file.path}" => validate(contents)}
+          write_encrypted_data(vault_client, data_hash, transit_key)
           tmp_file.close
 
           FileUtils.cp(tmp_file.path, path)
-        rescue
-          # If e.write_encrypted_data failed, data would fail to write to disk
+        rescue Exception => e
+          # If write_encrypted_data failed, data would fail to write to disk
           # It would be sad to lose that data, at least this would print the contents to the console.
-          puts red("Contents may have failed to write")
-          puts red(contents)
+          puts red("Contents may have failed to write\nError: #{e}")
+          puts yellow("Contents: \n#{contents}")
         ensure
           tmp_file.close
-          e.secure_erase(tmp_file.path, tmp_file.length)
+          secure_erase(tmp_file.path, tmp_file.length)
           tmp_file.unlink
         end
+      end
+
+      def validate_path(path)
+        path = Pathname.new(path)
+        raise yellow("File exists, use edit command") if path.exist?
+        path.dirname.mkpath unless path.dirname.exist?
       end
 
     end

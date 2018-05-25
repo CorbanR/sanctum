@@ -77,7 +77,7 @@ The configuration file is a Hash represented in YAML format with three possible 
 * The `vault` section specifies the url, token, and transit_key to the Vault REST API endpoint.
   * url, token, and transit_key are **required** and can be set here or through environment variables.
 * The `sync` section sets the local paths and Vault prefixes you wish to synchronize.
-  * At lease one application definition is required.
+  * At lease one application/target definition is required.
 
 ## Roadmap
 * Better/more Tests

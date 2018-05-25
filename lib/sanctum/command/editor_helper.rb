@@ -4,7 +4,7 @@ require 'json'
 
 module Sanctum
   module Command
-    class EditorHelper
+    module EditorHelper
       include Colorizer
 
       def decrypt_data(vault_client, data, transit_key)
@@ -33,7 +33,6 @@ module Sanctum
         nil
       end
 
-      #TODO: research this a bit more.. to ensure this is sufficient
       def write_random_data(file, file_len)
         max_chunk_len = [file_len, (1024 * 1024 * 2)].max
 

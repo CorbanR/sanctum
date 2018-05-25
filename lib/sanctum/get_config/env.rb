@@ -4,7 +4,7 @@ module Sanctum
       attr_reader :env_options
 
       def initialize
-        @env_options = {vault: {url: ENV["VAULT_ADDR"], token: ENV["VAULT_TOKEN"], transit_key: ENV["VAULT_TRANSIT_KEY"]}}
+        @env_options = {vault: {url: ENV["VAULT_ADDR"], token: ENV["VAULT_TOKEN"], transit_key: ENV["SANCTUM_TRANSIT_KEY"]}}
       end
 
       def run

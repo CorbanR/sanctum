@@ -2,15 +2,18 @@ require 'fileutils'
 
 module Sanctum
   module Command
-    class Config < Base
-
+    # Intentionally not extending Base
+    # This command creates an example config
+    class Config
+      include Colorizer
       attr_reader :config_path, :example_file
 
-      def initialize(working_dir=Dir.pwd)
+      def initialize(options={}, _args=[])
+        options = {working_dir: Dir.pwd}.merge(options)
+
         relative_path = File.expand_path File.dirname(__FILE__)
-        @config_path = "#{working_dir}/sanctum.yaml"
+        @config_path = "#{options[:working_dir]}/sanctum.yaml"
         @example_file = "#{relative_path}/sanctum.example.yaml"
-        super
       end
 
       def run

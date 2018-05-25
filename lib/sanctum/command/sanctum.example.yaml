@@ -11,7 +11,7 @@ vault:
   #url: http://localhost:8200
   # token - (required) will use `ENV["VAULT_TOKEN"]` if available, otherwise tries to read from `ENV["HOME"]/.vault-token`
   #token: aaabbbcc-ddee-ffgg-hhii-jjkkllmmnnoop
-  # transit_key - (required) will use `ENV["VAULT_TRANSIT_KEY"]` if available.
+  # transit_key - (required) will use `ENV["SANCTUM_TRANSIT_KEY"]` if available.
   #   Transit key ring used to encrypt/decrypt secrets for local storage.
   #   If you need to use multiple transit_keys you will need to create seperate config files
   #transit_key: transit/keys/app-foo

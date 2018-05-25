@@ -14,7 +14,7 @@ module Sanctum
           c.desc 'specify config file'
           c.flag :c, :config
         when :targets
-          c.desc 'Comma seperated list of target application[s]'
+          c.desc 'Comma seperated list of targets'
           c.flag :t, :targets
         when :force
           c.desc 'Force, will not ask you to confirm differences'
@@ -35,7 +35,7 @@ module Sanctum
     desc 'Checks differences that exist'
     command :check do |c|
       common_options c, :targets, :config
-      c.action do |global_options,options,args|
+      c.action do
         Command::Check.new(@options_hash).run
       end
     end
@@ -43,7 +43,7 @@ module Sanctum
     desc 'Pull in secrets that already exist in Vault.'
     command :pull do |c|
       common_options c, :targets, :config, :force
-      c.action do |global_options,options,args|
+      c.action do
         Command::Pull.new(@options_hash).run
       end
     end
@@ -51,7 +51,7 @@ module Sanctum
     desc 'Synchronize secrets to Vault'
     command :push do |c|
       common_options c, :targets, :config, :force
-      c.action do |global_options,options,args|
+      c.action do
         Command::Push.new(@options_hash).run
       end
     end
@@ -59,7 +59,7 @@ module Sanctum
     desc 'Creates example config file'
     skips_pre
     command :config do |c|
-      c.action do |global_options,options,args|
+      c.action do
         Command::Config.new.run
       end
     end
@@ -68,7 +68,7 @@ module Sanctum
     arg_name 'path/to/file'
     command :create do |c|
       common_options c, :config
-      c.action do |global_options,options,args|
+      c.action do |_,_,args|
         Command::Create.new(@options_hash, args).run
       end
     end
@@ -77,7 +77,7 @@ module Sanctum
     arg_name 'path/to/file'
     command :view do |c|
       common_options c, :config
-      c.action do |global_options,options,args|
+      c.action do |_,_,args|
         if args.empty?
           help_now! "Please specify at least one argument"
         end
@@ -90,30 +90,18 @@ module Sanctum
     command :edit do |c|
       common_options c, :config
 
-      c.action do |global_options,options,args|
+      c.action do |_,_,args|
         Command::Edit.new(@options_hash, args).run
       end
     end
 
-    pre do |global,command,options,args|
-
+    pre do |_,_,options,_|
       @options_hash = GetConfig::ConfigMerge.new(config_file: options[:c], targets: options[:t], force: options[:force]).final_options
       Colorizer.colorize = @options_hash[:sanctum][:color]
-
-
-      # Return true to proceed; false to abort and not call the
-      # chosen command
-      # Use skips_pre before a command to skip this block
-      # on that command only
       true
     end
 
-    post do |global,command,options,args|
-      # Use skips_post before a command to skip this
-    end
-
     on_error do |exception|
-
       true
     end
 

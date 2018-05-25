@@ -18,10 +18,7 @@ module Sanctum
       secrets_from_vault
     end
 
-    def invalid_prefix?
-      vault_client.logical.list(prefix).empty?
-    end
-
+    private
     def list_recursive(prefix, parent = '')
       me = File.join(parent, prefix)
       result = vault_client.logical.list(me).inject({}) do |hash, item|
@@ -39,6 +36,10 @@ module Sanctum
     def read_data(item, parent = '')
       me = File.join(parent, item)
       vault_client.logical.read(me).data
+    end
+
+    def invalid_prefix?
+      vault_client.logical.list(prefix).empty?
     end
 
   end
