@@ -20,6 +20,9 @@ module Sanctum
 
       private
       def create_file(path)
+        # Calling vault_client will help prevent a race condition where the token is expired
+        # and contents fail to encrypt
+        vault_client
         tmp_file = Tempfile.new(File.basename(path))
 
         begin
