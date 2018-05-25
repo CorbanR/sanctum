@@ -13,6 +13,7 @@ Gem::Specification.new do |spec|
   spec.description   = %q{Syncs encrypted content from the filesystem to the Vault secrets store.}
   spec.homepage      = "https://github.com/CorbanR/sanctum"
   spec.license       = "MIT"
+  spec.metadata      = {"documentation_uri" => "https://github.com/CorbanR/sanctum"}
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
