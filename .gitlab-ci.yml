@@ -3,15 +3,20 @@ image:
   name: docker/compose:1.23.2
   entrypoint: ["/bin/sh", "-c"]
 
+variables:
+  COMPOSE_FILE: 'docker-compose.test.yml'
+
 stages:
   - test
 
 before_script:
   - docker version
+  - docker info
   - docker-compose version
 
 testing:
   stage: test
   script:
     - docker-compose build
-    - docker-compose run --rm sanctum bundle exec rspec
+    - docker-compose run -T --rm sanctum ls -lart -hu
+    - docker-compose run -T --rm sanctum bundle exec rspec
