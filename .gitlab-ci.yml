@@ -22,8 +22,6 @@ before_script:
 
 testing:
   stage: test
-  tags:
-    - docker
   script:
     - docker -v
     - docker-compose build
