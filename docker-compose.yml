@@ -1,0 +1,19 @@
+---
+version: '3.4'
+
+services:
+  sanctum:
+    build:
+      context: "."
+    command: /bin/true
+    depends_on:
+      - vault
+    volumes:
+      - ".:/usr/src/app"
+  vault:
+    image: vault:1.0.1
+    environment:
+      SKIP_SETCAP: "true"
+      VAULT_DEV_ROOT_TOKEN_ID: "514c55f0-c452-99e3-55e0-8301b770b92c"
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+    command: ["vault", "server", "-dev"]

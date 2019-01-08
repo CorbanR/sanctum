@@ -1,7 +1,7 @@
 RSpec.describe Sanctum::Command::Pull do
   let(:config_path) {"#{Dir.tmpdir}/pull"}
   let(:vault_token) {"514c55f0-c452-99e3-55e0-8301b770b92c"}
-  let(:vault_addr) {"http://127.0.0.1:8200"}
+  let(:vault_addr) {"http://vault:8200"}
   let(:vault_env) { {"VAULT_ADDR" => vault_addr, "VAULT_TOKEN" => vault_token} }
   let(:options) {
     {:config_file=>"#{config_path}/sanctum.yaml",
@@ -30,11 +30,6 @@ RSpec.describe Sanctum::Command::Pull do
     vault_command(vault_env,"vault secrets enable -path=vault-test generic")
     # Write secrets for testing
     vault_command(vault_env,"vault write vault-test/iad/prod/env keyone=valueone keytwo=valuetwo")
-  end
-
-  after :each do
-    Process.kill("INT", @pid)
-    Process.wait(@pid)
   end
 
   it "pulls secrets from vault and dumps to filesystem" do

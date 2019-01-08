@@ -1,7 +1,7 @@
 RSpec.describe Sanctum::Command::Create do
   let(:config_path) {"#{Dir.tmpdir}/create"}
   let(:vault_token) {"514c55f0-c452-99e3-55e0-8301b770b92c"}
-  let(:vault_addr) {"http://127.0.0.1:8200"}
+  let(:vault_addr) {"http://vault:8200"}
   let(:vault_env) { {"VAULT_ADDR" => vault_addr, "VAULT_TOKEN" => vault_token} }
   let(:vault_client) {Sanctum::VaultClient.build(vault_addr, vault_token)}
   let(:args) {["#{config_path}/encrypted_file"]}
@@ -19,8 +19,6 @@ RSpec.describe Sanctum::Command::Create do
     Sanctum::Colorizer.colorize = options[:sanctum][:color]
     #Clean up generated test file
     FileUtils.remove_entry_secure(config_path, force: true) if File.directory?(config_path)
-    # Start vault server
-    @pid = Process.spawn("vault", "server", "-dev", "-dev-root-token-id=#{vault_token}", [:out, :err]=>"/dev/null")
     # Ensure vault server has started and is accepting connections
     Timeout::timeout(5){response = Net::HTTP.get_response(URI("#{vault_addr}/v1/sys/health")) rescue retry until response.kind_of? Net::HTTPSuccess}
 
@@ -30,11 +28,6 @@ RSpec.describe Sanctum::Command::Create do
     vault_command(vault_env,"vault write -f transit/keys/vault-test")
     # Create tmp folder
     FileUtils.mkdir_p("#{config_path}")
-  end
-
-  after :each do
-    Process.kill("INT", @pid)
-    Process.wait(@pid)
   end
 
   it "creates an encrypted file" do

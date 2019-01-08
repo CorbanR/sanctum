@@ -80,6 +80,10 @@ The configuration file is a Hash represented in YAML format with three possible 
   * At lease one application/target definition is required.
 
 ## Roadmap
+* Add vault v2 api support
+* Add upgrade option for v2 api
+* If transit key doesn't exist try to create it(automatically)
+* If secrets mount doesn't exist try to create it(automatically)
 * Better/more Tests
 * Built in Backup features
 * Performance optimizations
@@ -111,10 +115,10 @@ This would allow you to be able to quickly decrypt local secrets in a disaster r
 3. Restore the key to your locally running vault instance.
 
 ## Development
-Ensure you have the [vault](https://www.vaultproject.io/downloads.html) binary in your path. Tests need this in order to setup a dev vault server(`vault server -dev`)
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+Install [docker](https://docs.docker.com/install/) and [docker-compose](https://docs.docker.com/compose/install/)
+After checking out the repo, run `docker-compose build`. To run tests run `docker-compose run --rm sanctum bundle exec rspec`.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+To release a new version, update the version number in `version.rb`, and then run `docker-compose run --rm sanctum bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ## Contributing
 
