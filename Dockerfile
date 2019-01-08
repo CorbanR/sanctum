@@ -9,8 +9,8 @@ ADD https://releases.hashicorp.com/vault/${VERSION}/vault_${VERSION}_SHA256SUMS.
 
 # Install additional dependencies
 # As well as nice to haves locally
-RUN apk --no-cache add git vim busybox-extras curl gpgme \
-  && gpg --keyserver pgp.mit.edu --recv-key 0x348FFC4C \
+RUN apk --no-cache add git vim busybox-extras curl gnupg \
+  && until gpg --keyserver hkp://p80.pool.sks-keyservers.net --recv-key 0x348FFC4C; do echo "Retry"; sleep 30; done \
   && gpg --verify /tmp/vault_${VERSION}_SHA256SUMS.sig \
   && cat /tmp/vault_${VERSION}_SHA256SUMS | grep linux_amd64 | sha256sum /tmp/vault_${VERSION}_linux_amd64.zip \
   && unzip /tmp/vault_${VERSION}_linux_amd64.zip \

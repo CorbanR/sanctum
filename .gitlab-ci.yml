@@ -1,28 +1,22 @@
 ---
-image: docker:stable
+image:
+  name: docker/compose:1.23.2
+  entrypoint: ["/bin/sh", "-c"]
+
+variables:
+  COMPOSE_FILE: 'docker-compose.test.yml'
 
 stages:
   - test
 
-variables:
-  # Docker inception (docker inside docker)
-  DOCKER_HOST: tcp://docker:2375/
-  DOCKER_DRIVER: overlay2
-
-services:
-  - docker:dind
-
 before_script:
-  - apk add --no-cache python python-dev py-pip build-base
-    libffi libffi-dev openssl openssl-dev linux-headers
-  - pip install pip setuptools --upgrade
-  - hash pip
-  - pip install docker-compose --upgrade
+  - docker version
   - docker info
+  - docker-compose version
 
 testing:
   stage: test
   script:
-    - docker -v
     - docker-compose build
-    - docker-compose run --rm sanctum bundle exec rspec
+    - docker-compose run -T --rm sanctum ls -lart -hu
+    - docker-compose run -T --rm sanctum bundle exec rspec
