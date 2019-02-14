@@ -1,12 +1,11 @@
+.rspec_status
 /.bundle/
 /.yardoc
 /_yardoc/
+/cache/
 /coverage/
 /doc/
 /pkg/
 /spec/reports/
 /tmp/
-/cache/
-
-# rspec failure tracking
-.rspec_status
+docker-compose.override.yml
