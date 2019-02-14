@@ -1,5 +1,5 @@
-require 'bundler/setup'
-require 'sanctum'
+require "bundler/setup"
+require_relative "support/sanctum_test"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -11,8 +11,4 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
-end
-
-def vault_command(env={}, command=nil, stdout={[:out]=>"/dev/null"})
-  system(env, command, stdout)
 end

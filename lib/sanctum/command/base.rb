@@ -17,7 +17,8 @@ module Sanctum
         @args = args
 
         @transit_key = options.fetch(:vault).fetch(:transit_key)
-        @targets = options.fetch(:sync)
+        # TODO: Fix, to much is happening to targets in this initializer!
+        @targets = update_prefix_or_path(set_secrets_version(options.fetch(:sync)))
         @config_file = options.fetch(:config_file)
       end
 
@@ -25,6 +26,60 @@ module Sanctum
         @vault_client ||= VaultClient.build(options[:vault][:url], options[:vault][:token])
       end
 
+      private
+      # TODO: Fix! This is a bit hacky, will update once vault-ruby gets updated with better support for v2 api
+
+
+      # Internal: gets information about mounts that the user has permissions on
+      # Returns: hash
+      def mounts_info
+        @mounts_info ||= vault_client.request(:get, "/v1/sys/internal/ui/mounts")
+      rescue Vault::HTTPClientError
+        warn red(
+          "Unable to gather info about mounts this maybe due to vault connectivity or permissions"\
+          "\nTo list info about mounts you have permissions to have following permissions added"\
+          "\npath \"sys/internal/ui/mounts\" { capabilities = [\"read\"] }"\
+        )
+      end
+
+
+      # Internal: automatically detect the api version of the secrets mount
+      # and adds :secrets_version to hash if it doesn't exist
+      #
+      # Parameter: is an array of hashes: [{}, {}]
+      # Returns array of hashes: [{:name=>"vault-test", :prefix=>"vault-test", :path=>"vault/vault-test", :secrets_version=>"2"},{}]
+      def set_secrets_version(targets)
+        mounts_hash = mounts_info
+
+        targets.each do |h|
+          next if h.key?(:secrets_version)
+
+          # If mount options is nil default to api version 1 otherwise use version value
+          if mounts_hash.dig(:data, :secret, "#{h[:prefix]}/".to_sym, :options).nil?
+            h[:secrets_version] = "1"
+          else
+            h[:secrets_version] = mounts_hash.dig(:data, :secret, "#{h[:prefix]}/".to_sym, :options, :version)
+          end
+        end
+      rescue Vault::VaultError
+        warn red(
+          "Unable to automatically determine secrets_version. This maybe due to vault connectivity or permissions"\
+          "\nTry again, or you could explicitly add `secrets_version:` to your sanctum.yaml to bypass auto detect"
+        )
+        raise
+      end
+
+      # Internal, add /data to prefix or path if secrets_version == "2"
+      # Parameter is an array of hashes: [{}, {}]
+      # Returns array of hashes: [{:name=>"vault-test", :prefix=>"vault-test/data", :path=>"vault/vault-test/data", :secrets_version=>"2"},{}]
+      def update_prefix_or_path(targets)
+        targets.each do |h|
+          next unless h[:secrets_version] == "2"
+
+          h[:prefix] = h[:prefix].include?("/data") ? h[:prefix] : "#{h[:prefix]}/data"
+          h[:path] = h[:path].include?("/data") ? h[:path] : "#{h[:path]}/data"
+        end
+      end
     end
   end
 end

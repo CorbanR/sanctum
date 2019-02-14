@@ -1,0 +1,39 @@
+---
+require: rubocop-rspec
+
+Rails:
+  Enabled: false
+
+AllCops:
+  DefaultFormatter: progress
+  DisplayCopNames: true
+  Exclude: []
+  CacheRootDirectory: cache/
+
+Bundler/OrderedGems:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Max: 25
+
+Style/FormatString:
+  Enabled: false
+
+Style/FormatStringToken:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+  ConsistentQuotesInMultiline: true
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+Style/TrailingUnderscoreVariable:
+  Enabled: false
+
+Metrics/MethodLength:
+  Max: 25

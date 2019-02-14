@@ -6,15 +6,15 @@ module Sanctum
     class DefaultOptions
       attr_reader :config_file
 
-      def initialize(config_file=nil)
+      def initialize(config_file = nil)
         @config_file = config_file
       end
 
       def run
         {
           config_file: config_file.nil? ? config_file_search : config_file,
-          sanctum: { force: false, color: true },
-          vault: { url: "https://127.0.0.1:8200", token: get_vault_token }
+          sanctum: { color: true, force: false },
+          vault: { token: get_vault_token, url: "https://127.0.0.1:8200" },
         }
       end
 
