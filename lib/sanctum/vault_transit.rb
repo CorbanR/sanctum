@@ -34,13 +34,14 @@ module Sanctum
     def self.write_to_file(vault_client, secrets, transit_key)
       secrets = encrypt(vault_client, secrets, transit_key)
       secrets.each do |k, v|
+        create_path(k)
         File.write(k, v.data[:ciphertext])
       end
     end
 
-    def self.write_to_vault(vault_client, secrets)
+    def self.write_to_vault(vault_client, secrets, secrets_version="1")
       secrets.each do |k, v|
-        vault_client.logical.write(k, v)
+        secrets_version == "2" ? vault_client.logical.write(k, data: v) : vault_client.logical.write(k, v)
       end
     end
 
@@ -54,6 +55,11 @@ module Sanctum
 
     def self.transit_key_exist?(vault_client, transit_key)
       !vault_client.logical.read(transit_key.to_path).nil?
+    end
+
+    def self.create_path(path)
+      path = Pathname.new(path).parent.to_path
+      FileUtils.mkdir_p(path) unless File.directory?(path)
     end
 
   end

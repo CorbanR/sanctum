@@ -23,12 +23,14 @@ Gem::Specification.new do |spec|
   spec.executables   = "sanctum"
   spec.require_paths = ["lib"]
 
-  spec.add_dependency 'vault', '~> 0'
-  spec.add_dependency 'hashdiff', '~> 0'
-  spec.add_dependency 'gli', '~> 2'
+  spec.add_dependency 'vault', '~> 0.12'
+  spec.add_dependency 'hashdiff', '~> 0.3'
+  spec.add_dependency 'gli', '~> 2.18'
 
-  spec.add_development_dependency 'bundler', '~> 1.16'
-  spec.add_development_dependency 'pry', '~> 0'
+  spec.add_development_dependency 'bundler', '~> 1.0'
+  spec.add_development_dependency 'pry', '~> 0.12.0'
   spec.add_development_dependency 'rake', '~> 12.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
+  spec.add_development_dependency 'rubocop', '~> 0.63.0'
+  spec.add_development_dependency 'rubocop-rspec', '~> 1.32.0'
 end

@@ -1,10 +1,10 @@
 RSpec.describe Sanctum::Command::Config do
-  let(:config_path) {Dir.tmpdir}
+  let(:helper) {SanctumTest::Helpers.new}
+  let(:config_path) { helper.config_path }
 
   before :each do
-    Sanctum::Colorizer.colorize = false
     # Clean up test generated data
-    FileUtils.remove_entry_secure("#{config_path}/sanctum.yaml", force: true) if File.file?("#{config_path}/sanctum.yaml")
+    helper.vault_cleanup
   end
 
   it "generates example config file" do

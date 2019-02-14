@@ -18,15 +18,18 @@ vault:
 
 sync:
   # sync is an array of hashes of sync target configurations
-  # at least one app definition is REQUIRED Fields:
+  # at least one app definition is REQUIRED
+  # Fields:
   #     name - (required) Friendly name of the sync target.
   #     prefix - (required) The vault prefix(secret mount) to synchronize to.
-  #     path - (required) The relative filesystem path to the directory
-  #       containing the files with content to synchronize to Vault.
-  #       This path is calculated relative to the directory containing
-  #       the configuration file.
+  #     path - (required) The relative filesystem path that gets synchronized
+  #       with Vault. This path is calculated relative to the directory containing
+  #       the sanctum configuration file.
   #     force - Whether or not to force push, pull actions (no user input)
   #       This inherits the setting from the `sanctum` section.
+  #     secrets_version - The k/v secrets version `1`, or `2`. Sanctum will try to detect this automatically
+  #       if not valued. This does not apply to `generic` secrets backend.
+  #       see https://www.vaultproject.io/docs/secrets/kv/index.html
   #- name: app-foo
     #prefix: secrets/app-foo
     #path: vault/app-foo

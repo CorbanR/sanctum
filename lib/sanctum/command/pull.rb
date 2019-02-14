@@ -14,7 +14,7 @@ module Sanctum
           end
 
           # Recursively get vault secrets for each prefix specified in sanctum.yaml
-          secrets_list = VaultSecrets.new(vault_client, target[:prefix]).get
+          secrets_list = VaultSecrets.new(vault_client, target[:prefix], target[:secrets_version]).get_all
           secrets_list.each do |k,v|
 
             vault_secrets = build_vault_secrets(v, [target[:path]])

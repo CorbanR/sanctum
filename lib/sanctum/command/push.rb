@@ -14,14 +14,14 @@ module Sanctum
             force = target.fetch(:force) {options[:sanctum][:force]}
           end
 
-          # Build array of local paths by recursively searching for local files for each prefix specified in sanctum.yaml
+          # Build array of local paths by recursively searching for local files for each path specified in sanctum.yaml
           local_paths = get_local_paths(File.join(File.dirname(config_file), target[:path]))
 
           local_secrets = build_local_secrets(local_paths)
-          vault_secrets = build_vault_secrets(local_paths, target[:prefix], target[:path])
+          vault_secrets = build_vault_secrets(local_paths, target[:prefix], target[:path], target[:secrets_version])
 
           # Compare secrets
-          # vault_secrets paths have been mapped to local_paths to make comparison easier
+          # vault_secrets prefix have been mapped to local_paths to make comparison easier
           differences = compare_secrets(vault_secrets, local_secrets, target[:name], "push")
           next if differences.nil?
 
@@ -36,21 +36,24 @@ module Sanctum
 
           if force
             warn red("#{target[:name]}: Forcefully writing differences to vault(push)")
-            VaultTransit.write_to_vault(vault_client, vault_secrets)
+            VaultTransit.write_to_vault(vault_client, vault_secrets, target[:secrets_version])
           else
             #Confirm with user, and write to local file if approved
             next unless confirmed_with_user?
-            VaultTransit.write_to_vault(vault_client, vault_secrets)
+            VaultTransit.write_to_vault(vault_client, vault_secrets, target[:secrets_version])
           end
         end
       end
 
-      def read_remote(paths, prefix)
+      # Right now this duplicates a bit of logic that already exists in
+      # VaultSecrets client.
+      # TODO: remove this method once code is rearranged
+      def read_remote(paths, prefix, secrets_version)
         tmp_hash = Hash.new
         paths.each do |k,v|
           p = File.join(prefix, k)
           unless vault_client.logical.read(p).nil?
-            v = vault_client.logical.read(p).data
+            v = secrets_version == "2" ? vault_client.logical.read(p).data[:data] : vault_client.logical.read(p).data
             tmp_hash["#{k}"] = v
           else
             next
@@ -77,7 +80,7 @@ module Sanctum
         local_secrets = VaultTransit.decrypt(vault_client, local_secrets, transit_key)
       end
 
-      def build_vault_secrets(local_paths, target_prefix, target_path)
+      def build_vault_secrets(local_paths, target_prefix, target_path, secrets_version)
         # Map local_paths into vault_paths
         vault_paths = local_paths.map{|x| x.gsub(File.join(File.dirname(config_file), target_path), "")}
 
@@ -86,9 +89,9 @@ module Sanctum
         # We will not for example, see differences if a secret exists in vault but not locally.
 
         # Read secrets from vault
-        vault_secrets = read_remote(vault_paths, target_prefix)
+        vault_secrets = read_remote(vault_paths, target_prefix, secrets_version)
 
-        # To make comparing a bit easier map vault_secrets paths back local_paths
+        # To make comparing a bit easier map vault_secrets prefixs back local_paths
         # Convert to json, then read, to make keys strings vs symbols
         vault_secrets = JSON(map_local_path(vault_secrets, target_path).to_json)
       end

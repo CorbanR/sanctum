@@ -95,6 +95,15 @@ module Sanctum
       end
     end
 
+    desc 'Update secrets mount'
+    command :update do |c|
+      common_options c, :config, :force
+      c.flag [:targets, :t], desc: 'Comma seperated list of targets', required: true
+      c.action do
+        Command::Update.new(@options_hash).run
+      end
+    end
+
     pre do |_,_,options,_|
       @options_hash = GetConfig::ConfigMerge.new(config_file: options[:c], targets: options[:t], force: options[:force]).final_options
       Colorizer.colorize = @options_hash[:sanctum][:color]
