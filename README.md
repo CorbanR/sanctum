@@ -42,6 +42,7 @@ sanctum config - Generate an example config file.
 sanctum create - Create an encrypted local file.
 sanctum edit   - Edit an encrypted local file.
 sanctum view   - View an encrypted local file.
+sanctum update - Update secrets backend to v2 api.
 ```
 
 
@@ -80,13 +81,14 @@ The configuration file is a Hash represented in YAML format with three possible 
   * At lease one application/target definition is required.
 
 ## Roadmap
-* Add vault v2 api support
-* Add upgrade option for v2 api
+* <strike>Add vault v2 api support</strike>
+* <strike>Add upgrade option for v2 api</strike>
 * If transit key doesn't exist try to create it(automatically)
 * If secrets mount doesn't exist try to create it(automatically)
-* Better/more Tests
+* <strike>Better/more Tests</strike>
 * Built in Backup features
 * Performance optimizations
+* Reorganize/cleanup code(add adapters, etc)
 
 ## Backup scenario.
 One possible use case for sanctum is for backing up vault secrets. This feature is NOT built in yet.
@@ -118,7 +120,8 @@ This would allow you to be able to quickly decrypt local secrets in a disaster r
 Install [docker](https://docs.docker.com/install/) and [docker-compose](https://docs.docker.com/compose/install/)
 After checking out the repo, run `docker-compose build`. To run tests run `docker-compose run --rm sanctum bundle exec rspec`.
 
-To release a new version, update the version number in `version.rb`, and then run `docker-compose run --rm sanctum bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+To release a new version, `cp docker-compose.override.yml_sample docker-compose.override.yml` and add gem credentials. Update the version number in `version.rb`.
+then run `docker-compose run --rm sanctum bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ## Contributing
 
