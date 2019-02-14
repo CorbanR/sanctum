@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sanctum (0.8.3)
+    sanctum (0.8.5.rc1)
       gli (~> 2.18)
       hashdiff (~> 0.3)
       vault (~> 0.12)
