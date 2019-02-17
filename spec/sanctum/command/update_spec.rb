@@ -24,6 +24,26 @@ RSpec.describe Sanctum::Command::Update do
       expect(mount_info_before_upgrade.dig(:data, :secret, "#{options.dig(:sync).first.dig(:prefix)}/".to_sym, :options, :version)).to be_nil
       expect(mount_info_after_upgrade.dig(:data, :secret, "#{options.dig(:sync).first.dig(:prefix)}/".to_sym, :options, :version)).to eq("2")
     end
+
+    it "runs post_upgrade_tasks successfully" do
+      mount_info_before_upgrade = vault_client.request(:get, "/v1/sys/internal/ui/mounts")
+      Sanctum::Command::Pull.new(options).run
+
+      described_class.new(options).run
+
+      old_path = "#{config_path}/#{options.dig(:sync).first.dig(:path)}"
+      new_path = "#{config_path}/#{options.dig(:sync).first.dig(:path)}/data/"
+
+      old_path_files = Dir.chdir(old_path) { Dir.glob('*') }.delete_if {|i| i == "data"}
+      new_path_files = Dir.chdir(new_path) { Dir.glob('*') }
+
+      mount_info_after_upgrade = vault_client.request(:get, "/v1/sys/internal/ui/mounts")
+
+      expect(mount_info_before_upgrade.dig(:data, :secret, "#{options.dig(:sync).first.dig(:prefix)}/".to_sym, :options, :version)).to be_nil
+      expect(mount_info_after_upgrade.dig(:data, :secret, "#{options.dig(:sync).first.dig(:prefix)}/".to_sym, :options, :version)).to eq("2")
+      expect(old_path_files).to be_empty
+      expect(new_path_files).not_to be_empty
+    end
   end
 
   context "kv version 1 secrets backend" do
@@ -42,6 +62,26 @@ RSpec.describe Sanctum::Command::Update do
 
       expect(mount_info_before_upgrade.dig(:data, :secret, "#{options.dig(:sync).first.dig(:prefix)}/".to_sym, :options, :version)).to eq("1")
       expect(mount_info_after_upgrade.dig(:data, :secret, "#{options.dig(:sync).first.dig(:prefix)}/".to_sym, :options, :version)).to eq("2")
+    end
+
+    it "runs post_upgrade_tasks successfully" do
+      mount_info_before_upgrade = vault_client.request(:get, "/v1/sys/internal/ui/mounts")
+      Sanctum::Command::Pull.new(options).run
+
+      described_class.new(options).run
+
+      old_path = "#{config_path}/#{options.dig(:sync).first.dig(:path)}"
+      new_path = "#{config_path}/#{options.dig(:sync).first.dig(:path)}/data/"
+
+      old_path_files = Dir.chdir(old_path) { Dir.glob('*') }.delete_if {|i| i == "data"}
+      new_path_files = Dir.chdir(new_path) { Dir.glob('*') }
+
+      mount_info_after_upgrade = vault_client.request(:get, "/v1/sys/internal/ui/mounts")
+
+      expect(mount_info_before_upgrade.dig(:data, :secret, "#{options.dig(:sync).first.dig(:prefix)}/".to_sym, :options, :version)).to eq("1")
+      expect(mount_info_after_upgrade.dig(:data, :secret, "#{options.dig(:sync).first.dig(:prefix)}/".to_sym, :options, :version)).to eq("2")
+      expect(old_path_files).to be_empty
+      expect(new_path_files).not_to be_empty
     end
   end
 

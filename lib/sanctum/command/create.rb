@@ -51,9 +51,21 @@ module Sanctum
         end
       end
 
+      # Check if the path you are creating matches a target path
+      # if secrets_version == 2 /data will be added to the path
+      # See command/base.rb
+      def path_matches_a_target?(path)
+        targets.each do |h|
+          path.to_s.include?(h[:path]) ? (return true) : (return false)
+        end
+      end
+
       def validate_path(path)
         path = Pathname.new(path)
+        keys_to_print = targets.map { |h| h.slice(:name, :path) }
         raise yellow("File exists, use edit command") if path.exist?
+        raise yellow("No targets contain a :path key that matches the path you specified\n#{keys_to_print}") unless path_matches_a_target?(path)
+
         path.dirname.mkpath unless path.dirname.exist?
       end
 

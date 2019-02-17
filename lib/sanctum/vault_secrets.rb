@@ -12,7 +12,10 @@ module Sanctum
     # API version 2 uses /metadata path to list, but /data to read.
     #TODO Fix, change list_prefix back to prefix at some point. Use new kv from vault-ruby once it's updated
     def get_all
-      raise yellow("Warning: Vault prefix: '#{prefix}' does not exist.. ") if invalid_prefix?
+      raise yellow(
+        "Vault prefix: '#{prefix}' does not exist, or doesn't contain any secrets to pull/check"\
+        "\nEnsure mount is enabled and use `sanctum create`, and `sanctum push` to add secrets"
+      ) if invalid_prefix?
 
       secrets_from_vault = Hash.new
       secrets_from_vault[prefix] = JSON(list_recursive(list_prefix).to_json)

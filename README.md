@@ -63,7 +63,7 @@ VAULT_TOKEN=
 ```
 
 **Variables order of precedence**
-The higher the number the higher the precedence.(Command line arguments will always win).
+The higher the number the higher the precedence.(1 is the lowest precedence, 4 is the highest, Command line arguments will always win).
 
 1. Default variables (Documented in sanctum.yaml)
 2. Config file

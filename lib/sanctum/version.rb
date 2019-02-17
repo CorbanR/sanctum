@@ -1,3 +1,3 @@
 module Sanctum
-  VERSION = "0.8.5.rc1"
+  VERSION = "0.8.5.rc2"
 end

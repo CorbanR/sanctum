@@ -1,0 +1,14 @@
+# sanctum.yml
+sanctum:
+  force: false
+  color: true
+
+vault:
+  url: http://localhost:8200
+  token: my_cool_token
+  transit_key: transit/keys/sanctum-test
+
+sync:
+  - name: sanctum-test
+    prefix: sanctum-test    #Refers to vault
+    path: vault/sanctum-test #Refers to local path relative to sanctum.yaml

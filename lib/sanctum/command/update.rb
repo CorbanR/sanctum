@@ -4,17 +4,17 @@ module Sanctum
   module Command
     class Update < Base
       def run
-        targets.each do |target|
-          # Use command line if force: true
-          if options[:cli][:force]
-            force = options[:cli][:force]
-          else
-            force = target.fetch(:force) {options[:sanctum][:force]}
-          end
+        raise red("Please only specify one target") if targets.count > 1
+        target = targets.first
 
-          update_mount(target, force)
-
+        # Use command line if force: true
+        if options[:cli][:force]
+          force = options[:cli][:force]
+        else
+          force = target.fetch(:force) {options[:sanctum][:force]}
         end
+
+        update_mount(target, force)
       end
 
       private
@@ -24,30 +24,34 @@ module Sanctum
         pre_upgrade_warning
 
         if force
-          warn yellow("\nUpgrading #{target[:prefix]}")
-          upgrade_response = vault_client.request(:post, "/v1/sys/mounts/#{target[:prefix]}/tune", data)
-          upgrade_response.nil? ? nothing_happened_warning : (warn yellow("#{upgrade_response}"))
+          # When force option is used we will try to run the upgrade command mount, even if it's already been upgraded
+          # Request will be a no-op and return null. So we need to remove `data` from the prefix if it's been added.
+          force_prefix = target[:prefix].include?("/data") ? target[:prefix].sub(/\/data/, "") : target[:prefix]
+          warn yellow("\nUpgrading #{force_prefix}")
+          upgrade_response = vault_client.request(:post, "/v1/sys/mounts/#{force_prefix}/tune", data)
         else
           already_upgraded_warning if target[:secrets_version] == "2"
-          warn yellow("#{vault_client.request(:post, "/v1/sys/mounts/#{target[:prefix]}/tune", data)}") if confirm_upgrade?(target)
+          upgrade_response = confirm_upgrade?(target) ? vault_client.request(:post, "/v1/sys/mounts/#{target[:prefix]}/tune", data) : nil
         end
-        post_upgrade_warning(target)
+        upgrade_response.nil? ? nothing_happened_warning : (warn yellow("#{upgrade_response}\n#{post_upgrade_warning}"))
+
+        post_upgrade_tasks(target)
       end
 
       def pre_upgrade_warning
         warn yellow(
           "\nPlease read 'Upgrading from Version 1' documentation BEFORE you upgrade"\
-          "\nThe addition of `/data`, and `/metadata` endpoints will break applications that are depending on v1 endpoints"\
+          "\nThe addition of `/data`, and `/metadata` endpoints will break applications that are dependant on v1 endpoints"\
           "\nYou will want to update permissions policies, and applications BEFORE you upgrade"\
           "\nhttps://www.vaultproject.io/docs/secrets/kv/kv-v2.html#upgrading-from-version-1"\
         )
         additional_acl_warning
       end
 
-      def post_upgrade_warning(target)
+      def post_upgrade_warning
         warn yellow(
-          "\nOnce the upgrade has been completed, make sure you update your sanctum.yaml."\
-          "\nPlease add the `secrets_version: 2` key to the #{target[:prefix]} config."
+          "\nOnce the upgrade has been completed update sanctum.yaml."\
+          "\nPlease add or update `secrets_version:` key to each configured target."\
         )
       end
 
@@ -55,12 +59,7 @@ module Sanctum
         warn yellow(
           "\nIf you use policies to limit secrets access you may need to have your permissions updated"\
           "\nSee https://www.vaultproject.io/docs/secrets/kv/kv-v2.html#acl-rules for more info"\
-          "\nSpecifically you may need add something similar to the following:"\
-          "\npath \"<secrets_mount>/data/*\" { capabilities = [\"list\",\"read\",\"create\",\"update\",\"delete\"] }"\
-          "\npath \"<secrets_mount>/metadata/*\" { capabilities = [\"list\",\"read\",\"create\",\"update\",\"delete\"] }"\
-          "\npath \"<secrets_mount>/destroy/*\" { capabilities = [\"update\"] }"\
-          "\npath \"<secrets_mount>/delete/*\" { capabilities = [\"update\"] }"\
-          "\npath \"<secrets_mount>/undelete/*\" { capabilities = [\"update\"] }"
+          "\nSee examples/single_target for updated policy example."\
         )
       end
 
@@ -74,12 +73,13 @@ module Sanctum
 
       def nothing_happened_warning
         warn yellow(
-          "Request was successfull but returned a nil response, this generally means the mount has is already upgraded!"
+          "Request returned a nil response, which could mean mount is already upgraded"
         )
       end
 
       def confirm_upgrade?(target)
         warn yellow("\nUpgrading will make the mount temporarily unavailable")
+        warn red("\nPlease ensure you are fully synced(all secrets have been pushed/pulled)")
         warn yellow("Would you like to continue?: ")
         question = STDIN.gets.chomp.upcase
 
@@ -87,9 +87,33 @@ module Sanctum
           warn yellow("\nUpgrading #{target[:prefix]}")
           true
         else
-          warn yellow("\nSkipping....\n")
+          raise yellow("\nSkipping....\n")
           false
         end
+      end
+
+      # Post upgrade tasks if mount is being upgraded from generic mount or v1 mount to v2 mount
+      # Ensure local files mimic vault v2 by add `/data` to local path
+      def post_upgrade_tasks(target)
+        config_path = Pathname.new(config_file).dirname.to_s
+        full_target_path = "#{config_path}/#{target[:path]}"
+
+        old_path = full_target_path.include?("/data") ? full_target_path.sub(/\/data/, "") : full_target_path
+        new_path = full_target_path.include?("/data") ? full_target_path : "#{full_target_path}/data"
+
+        # If old path does not exist, chances are sanctum upgrade is being run before sanctum pull/push.
+        return unless File.directory?(old_path)
+
+        files_to_move = Dir.chdir(old_path) { Dir.glob('*') }.delete_if {|i| i == "data"}
+        unless files_to_move.empty?
+          FileUtils.mkdir_p(new_path) unless File.directory?(new_path)
+          files_to_move.each do |f|
+            FileUtils.mv("#{old_path}/#{f}", new_path, secure: true)
+          end
+        end
+      rescue
+        warn red("Post upgrade tasks failed")
+        raise
       end
     end
   end
