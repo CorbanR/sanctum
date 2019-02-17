@@ -4,7 +4,11 @@ Local files are encrypted using vaults [transit](https://www.vaultproject.io/api
 This makes maintaining multiple vault secrets for multiple applications simple and secure.
 
 ## Usage Example
-Lets say you have a vault instance with a `generic`, or `kv` enabled backend.
+
+### Generic/KV API v1
+**NOTE: If you just starting to use sanctum, and or vault, you should be using API v2 For more info see, [Vault kv v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2.html), or [Vault kv v1](https://www.vaultproject.io/docs/secrets/kv/kv-v1.html)**
+
+Lets say you have a vault instance with a `generic`, or `kv v1` enabled backend.
 if you were to run, `vault read secrets/cool-app/dev/env` you would see something similar to
 
 ```
@@ -21,6 +25,37 @@ using the sanctum gem, you could run `sanctum pull`. Depending on the path you s
 <path-specified>/cool-app/dev/env
 ```
 `env` would contain a `transit` encrypted base64 encoded blob, which you could then edit with `sanctum edit <path-specified>/cool-app/dev/env`. You could then push any changes with
+`sanctum push`.
+
+### KV API v2
+**NOTE: V2 API adds `/data` and `/metadata` endpoints as such sanctum will automatically add `/data` to your local path in order to reflect the endpoints see [Vault kv v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2.html)**
+
+Lets say you have a vault instance with `kv v2`  enabled backend.
+if you were to run, `vault kv secrets/cool-app/dev/env` you may see something similar to
+
+```
+====== Metadata ======
+Key              Value
+---              -----
+created_time     2019-02-17T00:58:51.194452314Z
+deletion_time    n/a
+destroyed        false
+version          1
+
+======= Data =======
+Key            Value
+---            -----
+db_password    heydudeihaveacoolapp
+token          myrandomtoken
+
+```
+
+using the sanctum gem, you could run `sanctum pull`. Depending on the path you specified in the `sanctum.yaml` config file; Your local file system would look similar to
+```
+<path-specified>/data/cool-app/dev/env
+```
+
+`env` would contain a `transit` encrypted base64 encoded blob, which you could then edit with `sanctum edit <path-specified>/data/cool-app/dev/env`. You could then push any changes with
 `sanctum push`.
 
 ## Installation
@@ -42,7 +77,7 @@ sanctum config - Generate an example config file.
 sanctum create - Create an encrypted local file.
 sanctum edit   - Edit an encrypted local file.
 sanctum view   - View an encrypted local file.
-sanctum update - Update secrets backend to v2 api.
+sanctum update - Update secrets backend to v2 API.
 ```
 
 
@@ -81,8 +116,8 @@ The configuration file is a Hash represented in YAML format with three possible 
   * At lease one application/target definition is required.
 
 ## Roadmap
-* <strike>Add vault v2 api support</strike>
-* <strike>Add upgrade option for v2 api</strike>
+* <strike>Add vault v2 API support</strike>
+* <strike>Add upgrade option for v2 API</strike>
 * If transit key doesn't exist try to create it(automatically)
 * If secrets mount doesn't exist try to create it(automatically)
 * <strike>Better/more Tests</strike>
