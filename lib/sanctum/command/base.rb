@@ -17,8 +17,14 @@ module Sanctum
         @args = args
 
         @transit_key = options.fetch(:vault).fetch(:transit_key)
-        # TODO: Fix, to much is happening to targets in this initializer!
-        @targets = update_prefix_or_path(set_secrets_version(options.fetch(:sync)))
+        # TODO: Fix, way to much is happening to targets in this initializer!
+        @targets = update_prefix_or_path(
+          set_secrets_version(
+            remove_trailing_slash(
+              options.fetch(:sync)
+            )
+          )
+        )
         @config_file = options.fetch(:config_file)
       end
 
@@ -46,19 +52,23 @@ module Sanctum
         mounts_hash = mounts_info
 
         targets.each do |h|
-          next if h.key?(:secrets_version)
+          if h.key?(:secrets_version)
+            # Ensure value is a string
+            h[:secrets_version] = h[:secrets_version].to_s
+            next
+          end
 
           # If mount options is nil default to api version 1 otherwise use version value
           # generic mounts will not have a version specified
           if mounts_hash.dig(:data, :secret, "#{h[:prefix]}/".to_sym, :options).nil?
             h[:secrets_version] = "1"
           else
-            h[:secrets_version] = mounts_hash.dig(:data, :secret, "#{h[:prefix]}/".to_sym, :options, :version)
+            h[:secrets_version] = mounts_hash.dig(:data, :secret, "#{h[:prefix]}/".to_sym, :options, :version).to_s
           end
         end
       end
 
-      # Internal, add /data to prefix or path if secrets_version == "2"
+      # Internal, update prefix or path, add `/data` if secrets_version == "2"
       # Parameter is an array of hashes: [{}, {}]
       # Returns array of hashes: [{:name=>"vault-test", :prefix=>"vault-test/data", :path=>"vault/vault-test/data", :secrets_version=>"2"},{}]
       def update_prefix_or_path(targets)
@@ -67,6 +77,13 @@ module Sanctum
 
           h[:prefix] = h[:prefix].include?("/data") ? h[:prefix] : "#{h[:prefix]}/data"
           h[:path] = h[:path].include?("/data") ? h[:path] : "#{h[:path]}/data"
+        end
+      end
+
+      def remove_trailing_slash(targets)
+        targets.each do |h|
+          h[:prefix] = h[:prefix].chomp("/")
+          h[:path] = h[:path].chomp("/")
         end
       end
 
