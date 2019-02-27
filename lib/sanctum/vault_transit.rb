@@ -8,6 +8,8 @@ module Sanctum
     def self.encrypt(vault_client, secrets, transit_key)
       transit_key = Pathname.new(transit_key)
 
+      #TODO probably nice to do this check earlier on,
+      #Such as in command/base
       unless transit_key_exist?(vault_client, transit_key)
         raise red("#{transit_key} does not exist")
       end
