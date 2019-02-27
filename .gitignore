@@ -1,4 +1,6 @@
 .rspec_status
+sanctum.yaml
+vault/
 /.bundle/
 /.yardoc
 /_yardoc/

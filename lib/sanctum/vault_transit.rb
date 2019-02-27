@@ -3,7 +3,7 @@ require 'pathname'
 
 module Sanctum
   class VaultTransit
-    include Colorizer
+    extend Colorizer
 
     def self.encrypt(vault_client, secrets, transit_key)
       transit_key = Pathname.new(transit_key)

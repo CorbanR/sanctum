@@ -124,6 +124,7 @@ The configuration file is a Hash represented in YAML format with three possible 
 * Built in Backup features
 * Performance optimizations
 * Reorganize/cleanup code(add adapters, etc)
+* Add delete command which will delete locally/remote secret
 
 ## Backup scenario.
 One possible use case for sanctum is for backing up vault secrets. This feature is NOT built in yet.

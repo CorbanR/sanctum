@@ -58,7 +58,13 @@ module Sanctum
       # me will contain /metadata if secrets_version 2 due to list_prefix method
       if secrets_version == "2"
         me = me.sub(/metadata/, "data")
-        vault_client.logical.read(me).data[:data]
+        # It's possible for a vault secret to be nil...
+        if vault_client.logical.read(me).nil?
+          warn red("vault secret '#{me}' contains a null vaule, ignoring...")
+          {}
+        else
+          vault_client.logical.read(me).data[:data]
+        end
       else
         vault_client.logical.read(me).data
       end
