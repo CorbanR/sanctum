@@ -2,7 +2,7 @@ FROM ruby:2.5-alpine
 
 USER root
 
-ENV VERSION 1.0.2
+ENV VERSION 1.0.3
 ADD https://releases.hashicorp.com/vault/${VERSION}/vault_${VERSION}_linux_amd64.zip /tmp/
 ADD https://releases.hashicorp.com/vault/${VERSION}/vault_${VERSION}_SHA256SUMS /tmp/
 ADD https://releases.hashicorp.com/vault/${VERSION}/vault_${VERSION}_SHA256SUMS.sig /tmp/

@@ -13,7 +13,7 @@ module Sanctum
       def run
         {
           config_file: config_file.nil? ? config_file_search : config_file,
-          sanctum: { color: true, force: false },
+          sanctum: { color: true, force: false, secrets_version: "auto", transit_key: nil },
           vault: { token: get_vault_token, url: "https://127.0.0.1:8200" },
         }
       end

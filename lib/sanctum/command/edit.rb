@@ -9,15 +9,16 @@ module Sanctum
 
       def run(&block)
         if args.one?
-          path = args[0]
-          edit_file(path, &block)
+          path = args.first
+          transit_key = determine_transit_key(path, targets)
+          edit_file(path, transit_key, &block)
         else
           raise ArgumentError, red('Please pass only one path argument')
         end
       end
 
       private
-      def edit_file(path)
+      def edit_file(path, transit_key)
         tmp_file = Tempfile.new(File.basename(path))
 
         begin
@@ -33,7 +34,11 @@ module Sanctum
           else
             previous_contents = File.read(tmp_file.path)
             editor = ENV.fetch('EDITOR', 'vi')
-            raise red("Error with editor") unless system(editor, tmp_file.path )
+            #This should help in the case where people are using macvim, atom, etc
+            command = Thread.new do
+              raise red("Error with editor") unless system(editor, tmp_file.path )
+            end
+            command.join
           end
           contents = File.read(tmp_file.path)
 

@@ -5,9 +5,15 @@ module Sanctum
     class View < Base
 
       def run(command="less")
-        raise ArgumentError, red('Please provide at least one path') if args.empty?
+        if args.one?
+          path = args.first
+          transit_key = determine_transit_key(path, targets)
+        else
+          raise ArgumentError, red('Please pass only one path argument')
+        end
 
-        local_secrets = read_local_files(args)
+        #TODO: Fix later, expects an array of paths
+        local_secrets = read_local_files(["#{path}"])
         local_secrets = VaultTransit.decrypt(vault_client, local_secrets, transit_key)
         begin
           IO.popen(command, "w") { |f| f.puts "#{local_secrets.to_yaml}" }

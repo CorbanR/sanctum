@@ -8,7 +8,7 @@ RSpec.describe Sanctum::Command::View do
 
   before :each do
     # Write transit encrypted data to local file to test view command
-    Sanctum::VaultTransit.write_to_file(vault_client, {args[0] => {"keyone" => "#{random_value_one}"}}, options[:vault][:transit_key])
+    Sanctum::VaultTransit.write_to_file(vault_client, {args[0] => {"keyone" => "#{random_value_one}"}}, options[:sanctum][:transit_key])
   end
 
   # TODO This could probably be better

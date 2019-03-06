@@ -67,7 +67,7 @@ module Sanctum
     desc 'Create an encrypted file'
     arg_name 'path/to/file'
     command :create do |c|
-      common_options c, :config
+      common_options c, :targets, :config
       c.action do |_,_,args|
         Command::Create.new(@options_hash, args).run
       end
@@ -76,7 +76,7 @@ module Sanctum
     desc 'View encrypted file[s]'
     arg_name 'path/to/file'
     command :view do |c|
-      common_options c, :config
+      common_options c, :targets, :config
       c.action do |_,_,args|
         if args.empty?
           help_now! "Please specify at least one argument"
@@ -88,7 +88,7 @@ module Sanctum
     desc 'Edit an encrypted file'
     arg_name 'path/to/file'
     command :edit do |c|
-      common_options c, :config
+      common_options c, :targets, :config
 
       c.action do |_,_,args|
         Command::Edit.new(@options_hash, args).run
@@ -98,7 +98,7 @@ module Sanctum
     desc 'Update secrets mount'
     command :update do |c|
       common_options c, :config, :force
-      c.flag [:targets, :t], desc: 'Comma seperated list of targets', required: true
+      c.flag [:targets, :t], desc: 'Specify target to update', required: true
       c.action do
         Command::Update.new(@options_hash).run
       end

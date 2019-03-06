@@ -31,6 +31,7 @@ RSpec.describe Sanctum::Command::Pull do
             :prefix => "vault-test",
             :path => "vault/vault-test",
             :secrets_version => "1",
+            :transit_key => "transit/keys/vault-test",
           },
         ]
       )
@@ -66,6 +67,7 @@ RSpec.describe Sanctum::Command::Pull do
             :prefix => "vault-test",
             :path => "vault/vault-test",
             :secrets_version => "1",
+            :transit_key => "transit/keys/vault-test",
           },
         ]
       )
@@ -94,22 +96,29 @@ RSpec.describe Sanctum::Command::Pull do
       expect(file_exists).to be(true)
     end
 
-    it "class returns updated targets with `data` and correct secrets_version" do
+    xit "ignores secrets with nil value" do
+      described_class.new(options).run
+      file_exists = File.exist?("#{config_path}/#{options.dig(:sync).first.dig(:path)}/iad/prod/env")
+      expect(file_exists).to be(true)
+    end
+
+    it "class returns updated targets prefix with `data` and correct secrets_version" do
       expect(described_class.new(options).run).to eq(
         [
           {
             :name => "vault-test",
             :prefix => "vault-test/data",
-            :path => "vault/vault-test/data",
+            :path => "vault/vault-test",
             :secrets_version => "2",
+            :transit_key => "transit/keys/vault-test",
           },
         ]
       )
     end
 
-    it "outputs correct diff with `data` in path to stdout" do
+    it "outputs correct diff and path to stdout" do
       expect { described_class.new(options).run }.to output(
-        /\.*+\/vault\/vault-test\/data\/iad\/prod\/env => {"keyone"=>"#{random_value_one}", "keytwo"=>"#{random_value_two}"}/
+        /\.*+\/vault\/vault-test\/iad\/prod\/env => {"keyone"=>"#{random_value_one}", "keytwo"=>"#{random_value_two}"}/
       ).to_stdout
     end
   end

@@ -17,7 +17,7 @@ RSpec.describe Sanctum::Command::Create do
     end
 
     encrypted_file = args[0]
-    decrypted_contents = Sanctum::VaultTransit.decrypt(vault_client, {encrypted_file => File.read(encrypted_file)}, options[:vault][:transit_key])
+    decrypted_contents = Sanctum::VaultTransit.decrypt(vault_client, {encrypted_file => File.read(encrypted_file)}, options[:sanctum][:transit_key])
 
 
     expect(File.file?(encrypted_file)).to be(true)
@@ -25,10 +25,8 @@ RSpec.describe Sanctum::Command::Create do
     expect(decrypted_contents).to eq({encrypted_file => {"keyone" => "#{random_value_one}"}})
   end
 
-  it "fails when creating a file that doesn't match a targets path" do
-    bad_args = ["#{config_path}/encrypted_file"]
-    expect{ described_class.new(options, bad_args).run do |tmp_file|
-      File.write(tmp_file.path, "keyone: #{random_value_one}")
-    end }.to raise_error(RuntimeError, /No targets contain a :path key that matches the path you specified/)
+  it "Error if data isn't in key/value pair format" do
+    expect { described_class.new(options, args).run{ |tmp_file| File.write(tmp_file.path, "hey") } }.to output(
+      /Invalid Contents. Must be valid, json or yaml, in key\/value pair format/).to_stdout
   end
 end

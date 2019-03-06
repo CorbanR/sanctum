@@ -29,7 +29,7 @@ module SanctumTest
       # Enable transit backend
       vault_command(vault_env, "vault secrets enable transit")
       # Create transit key
-      vault_command(vault_env, "vault write -f #{options.dig(:vault).dig(:transit_key)}")
+      vault_command(vault_env, "vault write -f #{options.dig(:sanctum).dig(:transit_key)}")
       # Create secrets mount
       if secrets_version
         vault_command(vault_env, "vault secrets enable -path=#{options.dig(:sync).first.dig(:prefix)} -version=#{secrets_version} #{secrets_engine}")
@@ -58,11 +58,12 @@ module SanctumTest
         sanctum: {
           force: false,
           color: false,
+          transit_key: "transit/keys/vault-test",
+          secrets_version: "auto",
         },
         vault: {
           url: "http://vault:8200",
           token: "514c55f0-c452-99e3-55e0-8301b770b92c",
-          transit_key: "transit/keys/vault-test",
         },
         sync: [
           {

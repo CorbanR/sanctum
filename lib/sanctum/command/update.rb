@@ -34,8 +34,6 @@ module Sanctum
           upgrade_response = confirm_upgrade?(target) ? vault_client.request(:post, "/v1/sys/mounts/#{target[:prefix]}/tune", data) : nil
         end
         upgrade_response.nil? ? nothing_happened_warning : (warn yellow("#{upgrade_response}\n#{post_upgrade_warning}"))
-
-        post_upgrade_tasks(target)
       end
 
       def pre_upgrade_warning
@@ -90,30 +88,6 @@ module Sanctum
           raise yellow("\nSkipping....\n")
           false
         end
-      end
-
-      # Post upgrade tasks if mount is being upgraded from generic mount or v1 mount to v2 mount
-      # Ensure local files mimic vault v2 by add `/data` to local path
-      def post_upgrade_tasks(target)
-        config_path = Pathname.new(config_file).dirname.to_s
-        full_target_path = "#{config_path}/#{target[:path]}"
-
-        old_path = full_target_path.include?("/data") ? full_target_path.sub(/\/data/, "") : full_target_path
-        new_path = full_target_path.include?("/data") ? full_target_path : "#{full_target_path}/data"
-
-        # If old path does not exist, chances are sanctum upgrade is being run before sanctum pull/push.
-        return unless File.directory?(old_path)
-
-        files_to_move = Dir.chdir(old_path) { Dir.glob('*') }.delete_if {|i| i == "data"}
-        unless files_to_move.empty?
-          FileUtils.mkdir_p(new_path) unless File.directory?(new_path)
-          files_to_move.each do |f|
-            FileUtils.mv("#{old_path}/#{f}", new_path, secure: true)
-          end
-        end
-      rescue
-        warn red("Post upgrade tasks failed")
-        raise
       end
     end
   end

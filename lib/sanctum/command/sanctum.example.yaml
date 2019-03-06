@@ -1,20 +1,23 @@
 # sanctum.yml
 sanctum:
-  # force - defaults to false. Setting to true modifies behavior of push and pull commands.
-  #   If true you will not be asked if you want to overwrite changes.
-  #force: false
   # color - defaults to true. Setting to false will disable color to tty
   #color: true
+  # force - defaults to false. Setting to true modifies behavior of push and pull commands.
+  #   If true you will not be asked if you want to overwrite changes. Can be overridden on a per target basis.
+  #force: false
+  # secrets_version - defaults to `auto`, which will try to automatically detect secrets_version
+  #   can be overridden on a per target basis
+  #secrets_version: auto
+  # transit_key - (required if not set ) default transit_key to be used, can be overridden on a per target basis
+  #   Transit key ring used to encrypt/decrypt secrets for local storage.
+  #   If you need to use multiple transit_keys you will need to create seperate config files
+  #transit_key: transit/keys/app-foo
 
 vault:
   # url - will use `ENV["VAULT_ADDR"]` if available, otherwise defaults to http://localhost:8200
   #url: http://localhost:8200
   # token - (required) will use `ENV["VAULT_TOKEN"]` if available, otherwise tries to read from `ENV["HOME"]/.vault-token`
   #token: aaabbbcc-ddee-ffgg-hhii-jjkkllmmnnoop
-  # transit_key - (required) will use `ENV["SANCTUM_TRANSIT_KEY"]` if available.
-  #   Transit key ring used to encrypt/decrypt secrets for local storage.
-  #   If you need to use multiple transit_keys you will need to create seperate config files
-  #transit_key: transit/keys/app-foo
 
 sync:
   # sync is an array of hashes of sync target configurations
@@ -26,11 +29,18 @@ sync:
   #       with Vault. This path is calculated relative to the directory containing
   #       the sanctum configuration file.
   #     force - Whether or not to force push, pull actions (no user input)
-  #       This inherits the setting from the `sanctum` section.
+  #       Inherits the setting from the `sanctum` section.
   #     secrets_version - The k/v secrets version `1`, or `2`. Sanctum will try to detect this automatically
-  #       if not valued. This does not apply to `generic` secrets backend.
-  #       see https://www.vaultproject.io/docs/secrets/kv/index.html
+  #       if not valued. Inherits the setting from the `sanctum` section.
+  #     transit_key - (required if not set in `sanctum` section) Transit key ring used to encrypt/decrypt secrets
+  #     for local storage. Inherits the setting from the `sanctum` section.
   #- name: app-foo
     #prefix: secrets/app-foo
     #path: vault/app-foo
+    #force: false
+  #- name: app-bar
+    #prefix: app-bar
+    #path: vault/app-bar
+    #transit_key: transit/keys/app-bar
+    #secrets_version: 2
     #force: false

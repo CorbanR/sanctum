@@ -17,7 +17,7 @@ module Sanctum
           # Build array of local paths by recursively searching for local files for each path specified in sanctum.yaml
           local_paths = get_local_paths(File.join(File.dirname(config_file), target[:path]))
 
-          local_secrets = build_local_secrets(local_paths)
+          local_secrets = build_local_secrets(local_paths, target[:transit_key])
           vault_secrets = build_vault_secrets(local_paths, target[:prefix], target[:path], target[:secrets_version])
 
           # Compare secrets
@@ -73,7 +73,7 @@ module Sanctum
         tmp_hash
       end
 
-      def build_local_secrets(local_paths)
+      def build_local_secrets(local_paths, transit_key)
         # Read each local file
         local_secrets = read_local_files(local_paths)
         # Decrypt local secrets

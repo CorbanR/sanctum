@@ -18,7 +18,7 @@ module Sanctum
           secrets_list.each do |k,v|
 
             vault_secrets = build_vault_secrets(v, [target[:path]])
-            local_secrets = build_local_secrets(vault_secrets)
+            local_secrets = build_local_secrets(vault_secrets, target[:transit_key])
 
             #Compare secrets, if there are no differences continue to next target
             differences = compare_secrets(vault_secrets, local_secrets, target[:name], "pull")
@@ -33,11 +33,11 @@ module Sanctum
             if force
               # Write files to disk and encrypt with transit
               warn red("#{target[:name]}: Forcefully writing differences to disk(pull)")
-              VaultTransit.write_to_file(vault_client, vault_secrets, transit_key)
+              VaultTransit.write_to_file(vault_client, vault_secrets, target[:transit_key])
             else
               #Confirm with user, and write to local file if approved
               next unless confirmed_with_user?
-              VaultTransit.write_to_file(vault_client, vault_secrets, transit_key)
+              VaultTransit.write_to_file(vault_client, vault_secrets, target[:transit_key])
             end
           end
         end
@@ -65,7 +65,7 @@ module Sanctum
         vault_secrets
       end
 
-      def build_local_secrets(vault_secrets)
+      def build_local_secrets(vault_secrets, transit_key)
 
         # read_local_files uses vault_secrets paths to create a new hash with local paths and values.
         # This means that we will only compare secrets/paths that exist in both vault and locally.

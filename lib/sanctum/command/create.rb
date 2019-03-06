@@ -10,16 +10,17 @@ module Sanctum
 
       def run(&block)
         if args.one?
-          path = args[0]
+          path = args.first
           validate_path(path)
-          create_file(path, &block)
+          transit_key = determine_transit_key(path, targets)
+          create_file(path, transit_key, &block)
         else
           raise ArgumentError, red('Please pass only one path argument')
         end
       end
 
       private
-      def create_file(path)
+      def create_file(path, transit_key)
         # Calling vault_client will help prevent a race condition where the token is expired
         # and contents fail to encrypt
         vault_client
@@ -30,7 +31,11 @@ module Sanctum
             yield tmp_file
           else
             editor = ENV.fetch('EDITOR', 'vi')
-            raise red("Error with editor") unless system(editor, tmp_file.path)
+            #This should help in the case where people are using macvim, atom, etc
+            command = Thread.new do
+              raise red("Error with editor") unless system(editor, tmp_file.path)
+            end
+            command.join
           end
 
           contents = File.read(tmp_file.path)
@@ -51,20 +56,9 @@ module Sanctum
         end
       end
 
-      # Check if the path you are creating matches a target path
-      # if secrets_version == 2 /data will be added to the path
-      # See command/base.rb
-      def path_matches_a_target?(path)
-        targets.each do |h|
-          path.to_s.include?(h[:path]) ? (return true) : (return false)
-        end
-      end
-
       def validate_path(path)
         path = Pathname.new(path)
-        keys_to_print = targets.map { |h| h.slice(:name, :path) }
         raise yellow("File exists, use edit command") if path.exist?
-        raise yellow("No targets contain a :path key that matches the path you specified\n#{keys_to_print}") unless path_matches_a_target?(path)
 
         path.dirname.mkpath unless path.dirname.exist?
       end

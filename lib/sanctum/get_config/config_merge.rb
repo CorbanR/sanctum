@@ -17,22 +17,32 @@ module Sanctum
         @force = force
       end
 
-      def final_options
+      def default_options
         # default_options will search for config_file or take the path specified via cli
-        default_options = DefaultOptions.new(config_file).run
-        config_options = ConfigFile.new(default_options[:config_file]).run
-        env_options = Env.new.run
-        cli_options = {cli: {targets: targets, force: force }}
-
-        # Check that targets specified via commandline actually exist in config_file and update config_options[:sync] array
-        config_options = check_targets(targets, config_options) unless targets.nil?
-
-        merge_options(default_options, config_options, env_options, cli_options)
+        DefaultOptions.new(config_file).run
       end
 
+      def config_options
+        config_options = ConfigFile.new(default_options[:config_file]).run
+        # Check that targets specified via commandline actually exist in config_file and update config_options[:sync] array
+        config_options = check_targets(targets, config_options) unless targets.nil?
+        config_options
+      end
+
+      def env_options
+        Env.new.run
+      end
+
+      def cli_options
+        { cli: { targets: targets, force: force } }
+      end
 
       def merge_options(default_options, config_options, env_options, cli_options)
         default_options.deep_merge(config_options).deep_merge(env_options).deep_merge(cli_options)
+      end
+
+      def final_options
+        merge_options(default_options, config_options, env_options, cli_options)
       end
 
       def check_targets(targets, config_options)
