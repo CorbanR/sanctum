@@ -96,11 +96,11 @@ RSpec.describe Sanctum::Command::Pull do
       expect(file_exists).to be(true)
     end
 
-    xit "ignores secrets with nil value" do
-      described_class.new(options).run
-      file_exists = File.exist?("#{config_path}/#{options.dig(:sync).first.dig(:path)}/iad/prod/env")
-      expect(file_exists).to be(true)
-    end
+    #xit "ignores secrets with nil value" do
+      #described_class.new(options).run
+      #file_exists = File.exist?("#{config_path}/#{options.dig(:sync).first.dig(:path)}/iad/prod/env")
+      #expect(file_exists).to be(true)
+    #end
 
     it "class returns updated targets prefix with `data` and correct secrets_version" do
       expect(described_class.new(options).run).to eq(
