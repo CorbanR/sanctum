@@ -28,7 +28,7 @@ using the sanctum gem, you could run `sanctum pull`. Depending on the path you s
 `sanctum push`.
 
 ### KV API v2
-**NOTE: V2 API adds `/data` and `/metadata` endpoints as such sanctum will automatically add `/data` to your local path in order to reflect the endpoints see [Vault kv v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2.html)**
+**NOTE: V2 Vault API adds `/data` and `/metadata` to the mounts endpoints see [Vault kv v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2.html)**
 
 Lets say you have a vault instance with `kv v2`  enabled backend.
 if you were to run, `vault kv secrets/cool-app/dev/env` you may see something similar to
@@ -52,10 +52,10 @@ token          myrandomtoken
 
 using the sanctum gem, you could run `sanctum pull`. Depending on the path you specified in the `sanctum.yaml` config file; Your local file system would look similar to
 ```
-<path-specified>/data/cool-app/dev/env
+<path-specified>/cool-app/dev/env
 ```
 
-`env` would contain a `transit` encrypted base64 encoded blob, which you could then edit with `sanctum edit <path-specified>/data/cool-app/dev/env`. You could then push any changes with
+`env` would contain a `transit` encrypted base64 encoded blob, which you could then edit with `sanctum edit <path-specified>/cool-app/dev/env`. You could then push any changes with
 `sanctum push`.
 
 ## Installation
@@ -108,19 +108,23 @@ The higher the number the higher the precedence.(1 is the lowest precedence, 4 i
 
 ## Configuration file structure
 The configuration file is a Hash represented in YAML format with three possible top-level keys: `sanctum`, `vault`, and `sync`.
-* The `sanctum` section sets global defaults. 
-  * This section is **NOT** required.
-* The `vault` section specifies the url, token, and transit_key to the Vault REST API endpoint.
-  * url, token, and transit_key are **required** and can be set here or through environment variables.
+* The `sanctum` section sets global defaults.
+  * You can choose to set a `transit_key` default under this section, which can be overridden per target
+  * You can choose to set a `secrets_version` default under this section, which can be overridden per target
+* The `vault` section specifies the url, token, to the Vault REST API endpoint.
+  * url, token are **required** and can be set here or through environment variables.
 * The `sync` section sets the local paths and Vault prefixes you wish to synchronize.
   * At lease one application/target definition is required.
+  * If you have not specified a global `transit_key` in the `sanctum` section you must add the key for each target
+
+You can get more info by running `sanctum config` and viewing the generated file.
 
 ## Roadmap
 * <strike>Add vault v2 API support</strike>
 * <strike>Add upgrade option for v2 API</strike>
-* If transit key doesn't exist try to create it(automatically)
-* If secrets mount doesn't exist try to create it(automatically)
 * <strike>Better/more Tests</strike>
+* <strike>Support for multiple transit_keys</strike>
+* <strike>Support for global secrets_version</strike>
 * Built in Backup features
 * Performance optimizations
 * Reorganize/cleanup code(add adapters, etc)
