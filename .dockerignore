@@ -1,5 +1,2 @@
 sanctum.yaml
 vault/
-docker-compose*
-Dockerfile
-README.md
