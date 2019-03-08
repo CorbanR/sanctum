@@ -41,6 +41,9 @@ module Sanctum
         default_transit_key = options.fetch(:sanctum).fetch(:transit_key, nil)
         default_secrets_version = options.fetch(:sanctum).fetch(:secrets_version)
 
+        # TODO: make this better
+        # remove_trailing_slash needs to run first, as some of the other logic in other methods
+        # rely on it
         targets = remove_trailing_slash(targets)
         targets = set_secrets_version(targets, default_secrets_version)
         targets = set_transit_key(targets, default_transit_key)
@@ -63,13 +66,16 @@ module Sanctum
 
           if default_secrets_version == "auto"
             mounts_hash = mounts_info
+            # Use the root path to determine secrets_version
+            prefix = "#{h[:prefix].lines('/').first}"
+            prefix = prefix.include?("/") ? prefix.to_sym : "#{prefix}/".to_sym
 
             # If mount options is nil default to api version 1 otherwise use version value
             # generic mounts will not have a version specified
-            if mounts_hash.dig(:data, :secret, "#{h[:prefix]}/".to_sym, :options).nil?
+            if mounts_hash.dig(:data, :secret, prefix, :options).nil?
               h[:secrets_version] = "1"
             else
-              h[:secrets_version] = mounts_hash.dig(:data, :secret, "#{h[:prefix]}/".to_sym, :options, :version).to_s
+              h[:secrets_version] = mounts_hash.dig(:data, :secret, prefix, :options, :version).to_s
             end
           else
             h[:secrets_version] = default_secrets_version
@@ -103,7 +109,14 @@ module Sanctum
         targets.each do |h|
           next unless h[:secrets_version] == "2"
 
-          h[:prefix] = h[:prefix].include?("/data") ? h[:prefix] : "#{h[:prefix]}/data"
+          # Super gross..., split path into an array
+          path_array = h[:prefix].lines("/")
+          # Add `data/` to the right place in the path if it's not already there
+          if path_array.count == 1
+            h[:prefix] = path_array.insert(1, "/data").join
+          else
+            h[:prefix] = path_array.include?("data/") ? path_array.join : path_array.insert(1, "data/").join
+          end
         end
       end
 
@@ -111,6 +124,7 @@ module Sanctum
         targets.each do |h|
           h[:prefix] = h[:prefix].chomp("/")
           h[:path] = h[:path].chomp("/")
+          h[:transit_key] = h[:transit_key].chomp("/") if h.key?(:transit_key)
         end
       end
 
