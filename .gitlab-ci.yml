@@ -17,6 +17,6 @@ before_script:
 testing:
   stage: test
   script:
-    - docker-compose build
+    - docker-compose build --pull --parallel
     - docker-compose run -T --rm sanctum ls -lart -hu
     - docker-compose run -T --rm sanctum bundle exec rspec
