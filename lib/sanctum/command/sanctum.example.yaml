@@ -44,3 +44,17 @@ sync:
     #transit_key: transit/keys/app-bar
     #secrets_version: 2
     #force: false
+  # Example shows if you need to specify multiple nested prefixs
+  # You will want to namespace the local `path`
+  #- name: app-baz-micro
+    #prefix: app-baz/prod/micro
+    #path: vault/app-baz-micro/prod/micro
+    #transit_key: transit/keys/app-baz-micro
+    #secrets_version: 2
+    #force: false
+  #- name: app-baz-all
+    #prefix: app-baz
+    #path: vault/app-baz-all/prod/micro
+    #transit_key: transit/keys/app-baz-all
+    #secrets_version: 2
+    #force: false
