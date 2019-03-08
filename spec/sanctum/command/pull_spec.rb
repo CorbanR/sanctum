@@ -96,11 +96,15 @@ RSpec.describe Sanctum::Command::Pull do
       expect(file_exists).to be(true)
     end
 
-    #xit "ignores secrets with nil value" do
-      #described_class.new(options).run
-      #file_exists = File.exist?("#{config_path}/#{options.dig(:sync).first.dig(:path)}/iad/prod/env")
-      #expect(file_exists).to be(true)
-    #end
+    it "ignores secrets with nil value" do
+      # Write secrets for testing
+      vault_client.logical.write("#{options.dig(:sync).first.dig(:prefix)}/data/iad/edge/env", data: {gonna: "die"})
+      # Then... delete it
+      vault_client.request(:delete,"/v1/#{options.dig(:sync).first.dig(:prefix)}/data/iad/edge/env")
+      run_stderr = with_captured_stderr { described_class.new(options).run }
+
+      expect(run_stderr).to include("contains a null vaule")
+    end
 
     it "class returns updated targets prefix with `data` and correct secrets_version" do
       expect(described_class.new(options).run).to eq(

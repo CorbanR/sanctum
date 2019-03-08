@@ -12,3 +12,22 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 end
+
+# Little snippet taken from stackoverflow.com
+def with_captured_stdout
+  original_stdout = $stdout
+  $stdout = StringIO.new
+  yield
+  $stdout.string
+ensure
+  $stdout = original_stdout
+end
+
+def with_captured_stderr
+  original_stderr = $stderr
+  $stderr = StringIO.new
+  yield
+  $stderr.string
+ensure
+  $stderr = original_stderr
+end

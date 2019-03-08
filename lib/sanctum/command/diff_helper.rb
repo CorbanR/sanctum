@@ -12,6 +12,8 @@ module Sanctum
             puts green("#{diff[0].to_s + diff[1].join(" => ").to_s} => #{diff[2]}")
           else
             puts red("#{diff[0].to_s + diff[1].join(" => ").to_s} => #{diff[2]}")
+            # If a secret is changed, we should show the change
+            puts green("+#{diff[1].join(" => ").to_s} => #{diff[3]}") if diff.fetch(3, false)
           end
         end
         differences

@@ -33,12 +33,7 @@ module Sanctum
             yield tmp_file
           else
             previous_contents = File.read(tmp_file.path)
-            editor = ENV.fetch('EDITOR', 'vi')
-            #This should help in the case where people are using macvim, atom, etc
-            command = Thread.new do
-              raise red("Error with editor") unless system(editor, tmp_file.path )
-            end
-            command.join
+            TTY::Editor.open(tmp_file.path)
           end
           contents = File.read(tmp_file.path)
 

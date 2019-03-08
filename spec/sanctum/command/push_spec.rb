@@ -52,11 +52,28 @@ RSpec.describe Sanctum::Command::Push do
       expect(vault_secret).to eq({:keyone=>"#{random_value_one}"})
     end
 
+    it "pushes update secret to vault" do
+      # Write local file
+      Sanctum::VaultTransit.write_to_file(vault_client, {"#{config_path}/#{options.dig(:sync).first.dig(:path)}/iad/dev/env" => {"keyone" => "#{random_value_one}"}}, options[:sanctum][:transit_key])
+      # Write secret to vault
+      vault_client.logical.write("#{options.dig(:sync).first.dig(:prefix)}/data/iad/dev/env", data: { keyone: "#{random_value_two}" })
+
+      run_output = with_captured_stdout { described_class.new(options).run }
+      vault_secret = vault_client.logical.read("#{options.dig(:sync).first.dig(:prefix)}/iad/dev/env").data[:data]
+
+      expect(vault_secret).to eq({:keyone=>"#{random_value_one}"})
+      expect(run_output).to include(
+        "keyone => #{random_value_one}",
+        "keyone => #{random_value_two}"
+      )
+    end
+
     it "does not push to vault if there are no differences" do
       Sanctum::VaultTransit.write_to_file(vault_client, {"#{config_path}/#{options.dig(:sync).first.dig(:path)}/iad/prod/env" => {"keytwo" => "#{random_value_two}"}}, options[:sanctum][:transit_key])
       vault_client.logical.write("#{options.dig(:sync).first.dig(:prefix)}/data/iad/prod/env", data: { keytwo: "#{random_value_two}" })
 
-      expect { described_class.new(options).run }.to_not output.to_stdout
+      run_stderr = with_captured_stderr {described_class.new(options).run}
+      expect(run_stderr).to include("contains no differences")
     end
 
     it "outputs diff with key to stdout" do

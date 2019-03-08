@@ -5,6 +5,7 @@ module Sanctum
     class Pull < Base
 
       def run
+        puts yellow("Running `pull` for the following targets: \n#{targets.map{ |h| h.dig(:name)}.to_yaml.gsub("---\n", '')}")
         targets.each do |target|
           # Use command line if force: true
           if options[:cli][:force]

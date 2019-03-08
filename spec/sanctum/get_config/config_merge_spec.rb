@@ -2,11 +2,11 @@ RSpec.describe Sanctum::GetConfig::ConfigMerge do
   let(:helper) {SanctumTest::Helpers.new}
 
   it "gets correct default options" do
-    default_options = described_class.new(config_file: nil, targets: nil, force: nil).default_options
+    default_options = described_class.new(config_file: "/tmp/sanctum.yaml", targets: nil, force: nil).default_options
 
     expect(default_options).to match(
       {
-        config_file: nil,
+        config_file: "/tmp/sanctum.yaml",
         sanctum: {
           color: true,
           force: false,
