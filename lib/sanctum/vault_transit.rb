@@ -33,7 +33,15 @@ module Sanctum
       secrets
     end
 
+    # Writes secrets encrypted with transit to local files
+    #
+    # @param vault_client [VaultClient] client used interact with the vault api
+    # @param secrets [hash] {"/local/path": {key: value}}
+    # @param transit_key [String] key used to encrypt blobs via the transit backend
     def self.write_to_file(vault_client, secrets, transit_key)
+      # Coerce vault data values to strings
+      # To ensure a consistent experience pulling and pushing to vault
+      secrets.each { |_, v| v.transform_values!(&:to_s) }
       secrets = encrypt(vault_client, secrets, transit_key)
       secrets.each do |k, v|
         create_path(k)
@@ -41,8 +49,16 @@ module Sanctum
       end
     end
 
+    # Writes secrets to vault
+    #
+    # @param vault_client [VaultClient] client used to interact with the vault api
+    # @param secrets [hash] {"/vault/path": {key: value}}
+    # @param secrets_version [String] vault backend version[1, 2]
     def self.write_to_vault(vault_client, secrets, secrets_version="1")
       secrets.each do |k, v|
+        # Coerce vault data values to strings
+        # To ensure a consistent experience pulling and pushing to vault
+        v.transform_values!(&:to_s)
         secrets_version == "2" ? vault_client.logical.write(k, data: v) : vault_client.logical.write(k, v)
       end
     end

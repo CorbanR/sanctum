@@ -5,6 +5,11 @@ module Sanctum
     module DiffHelper
 
       def hash_diff(first_hash, second_hash)
+        # Recently changed how data is written to local system and vault
+        # TODO: The transform_values can be removed at a later date
+        first_hash = first_hash.each { |_, v| v.transform_values!(&:to_s) }
+        second_hash = second_hash.each { |_, v| v.transform_values!(&:to_s) }
+
         differences = HashDiff.best_diff(first_hash, second_hash, delimiter: " => ", array_path: true)
 
         differences.each do |diff|
@@ -20,6 +25,11 @@ module Sanctum
       end
 
       def compare_secrets(vault_secrets, local_secrets, name, direction="both")
+        # Recently changed how data is written to local system and vault
+        # TODO: The transform_values can be removed at a later date
+        vault_secrets = vault_secrets.each { |_, v| v.transform_values!(&:to_s) }
+        local_secrets = local_secrets.each { |_, v| v.transform_values!(&:to_s) }
+
         if vault_secrets == local_secrets
           warn yellow("Target #{name}: contains no differences")
         else
