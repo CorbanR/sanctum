@@ -5,7 +5,7 @@ image:
 
 variables:
   COMPOSE_FILE: 'docker-compose.test.yml'
-  COMPOSE_PROJECT_NAME: ${CI_JOB_NAME}-${CI_JOB_ID}
+  COMPOSE_PROJECT_NAME: sanctum-testing-$(head -200 /dev/urandom | cksum | cut -f1 -d " ")
 
 stages:
   - test
@@ -22,6 +22,8 @@ testing:
     - docker-compose build --pull --parallel --compress
     - docker-compose run --name ${CI_JOB_ID} -T --rm sanctum ls -lart -hu
     - docker-compose run --name ${CI_JOB_ID} -T --rm sanctum bundle exec rspec
+  after_script:
+    - docker-compose down --remove-orphans --volumes
 
 cleanup_job:
   stage: cleanup
