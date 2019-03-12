@@ -5,9 +5,11 @@ image:
 
 variables:
   COMPOSE_FILE: 'docker-compose.test.yml'
+  COMPOSE_PROJECT_NAME: ${CI_JOB_NAME}-${CI_JOB_ID}
 
 stages:
   - test
+  - cleanup
 
 before_script:
   - docker version
@@ -17,6 +19,12 @@ before_script:
 testing:
   stage: test
   script:
-    - docker-compose build --pull --parallel
-    - docker-compose run -T --rm sanctum ls -lart -hu
-    - docker-compose run -T --rm sanctum bundle exec rspec
+    - docker-compose build --pull --parallel --compress
+    - docker-compose run --name ${CI_JOB_ID} -T --rm sanctum ls -lart -hu
+    - docker-compose run --name ${CI_JOB_ID} -T --rm sanctum bundle exec rspec
+
+cleanup_job:
+  stage: cleanup
+  script: docker-compose down --remove-orphans --volumes
+  allow_failure: true
+  when: always
