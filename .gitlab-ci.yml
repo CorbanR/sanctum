@@ -5,13 +5,14 @@ image:
 
 variables:
   COMPOSE_FILE: 'docker-compose.test.yml'
-  COMPOSE_PROJECT_NAME: sanctum-testing-$(head -200 /dev/urandom | cksum | cut -f1 -d " ")
 
 stages:
   - test
   - cleanup
 
 before_script:
+  # Setting COMPOSE_PROJECT_NAME allows for multiple jobs running in parallel
+  - export COMPOSE_PROJECT_NAME=sanctum-testing-$(head -200 /dev/urandom | cksum | cut -f1 -d " ")
   - docker version
   - docker info
   - docker-compose version
@@ -22,8 +23,6 @@ testing:
     - docker-compose build --pull --parallel --compress
     - docker-compose run --name ${CI_JOB_ID} -T --rm sanctum ls -lart -hu
     - docker-compose run --name ${CI_JOB_ID} -T --rm sanctum bundle exec rspec
-  after_script:
-    - docker-compose down --remove-orphans --volumes
 
 cleanup_job:
   stage: cleanup
