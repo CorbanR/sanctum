@@ -11,8 +11,6 @@ stages:
   - cleanup
 
 before_script:
-  # Setting COMPOSE_PROJECT_NAME allows for multiple jobs running in parallel
-  - export COMPOSE_PROJECT_NAME=sanctum-testing-$(head -200 /dev/urandom | cksum | cut -f1 -d " ")
   - docker version
   - docker info
   - docker-compose version
@@ -23,9 +21,8 @@ testing:
     - docker-compose build --pull --parallel --compress
     - docker-compose run --name ${CI_JOB_ID} -T --rm sanctum ls -lart -hu
     - docker-compose run --name ${CI_JOB_ID} -T --rm sanctum bundle exec rspec
-
-cleanup_job:
-  stage: cleanup
-  script: docker-compose down --remove-orphans --volumes
-  allow_failure: true
-  when: always
+  # Was hoping to use a cleanup stage, but see
+  # https://gitlab.com/gitlab-org/gitlab-runner/issues/1099
+  # and https://gitlab.com/gitlab-org/gitlab-runner/issues/1099
+  after_script:
+    - docker-compose down --remove-orphans --volumes
