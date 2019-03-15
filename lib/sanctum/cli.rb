@@ -73,6 +73,15 @@ module Sanctum
       end
     end
 
+    desc 'Import a plaintext YAML file'
+    arg_name 'path/to/file path/to/encryptedfile'
+    command :import do |c|
+      common_options c, :targets, :config, :force
+      c.action do |_,_,args|
+        Command::Import.new(@options_hash, args).run
+      end
+    end
+
     desc 'View encrypted file[s]'
     arg_name 'path/to/file'
     command :view do |c|
