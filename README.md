@@ -76,6 +76,7 @@ sanctum pull   - Pull vault secrets to local files (encrypted).
 sanctum config - Generate an example config file.
 sanctum create - Create an encrypted local file.
 sanctum edit   - Edit an encrypted local file.
+sanctum import - Import an existing plaintext YAML file.
 sanctum view   - View an encrypted local file.
 sanctum update - Update secrets backend to v2 API.
 ```
