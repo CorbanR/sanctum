@@ -1,4 +1,8 @@
 # Sanctum
+![pipeline](https://gitlab.com/CorbanR/sanctum/badges/master/pipeline.svg)
+
+The github repository is just a mirror of [ https://gitlab.com/CorbanR/sanctum ](https://gitlab.com/CorbanR/sanctum) please submit all issues and merge requests to gitlab.
+
 Simple and secure filesystem-to-vault KV synchronization. Inspired by [constancy](https://github.com/daveadams/constancy). 
 Local files are encrypted using vaults [transit](https://www.vaultproject.io/api/secret/transit/index.html) backend. 
 This makes maintaining multiple vault secrets for multiple applications simple and secure.
