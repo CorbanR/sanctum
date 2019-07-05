@@ -1,13 +1,16 @@
+# frozen_string_literal: true
+
 require 'gli'
 require 'sanctum/command'
 require 'sanctum/get_config'
 require 'sanctum/version'
 
 module Sanctum
-  class CLI
+  #:nodoc:
+  class CLI # rubocop:disable Metrics/ClassLength
     extend GLI::App
 
-    def self.common_options(c, *opts)
+    def self.common_options(c, *opts) # rubocop:disable Naming/UncommunicativeMethodParamName
       opts.map(&:to_sym).each do |opt|
         case opt
         when :config
@@ -68,7 +71,7 @@ module Sanctum
     arg_name 'path/to/file'
     command :create do |c|
       common_options c, :targets, :config
-      c.action do |_,_,args|
+      c.action do |_, _, args|
         Command::Create.new(@options_hash, args).run
       end
     end
@@ -77,7 +80,7 @@ module Sanctum
     arg_name 'path/to/file path/to/encryptedfile'
     command :import do |c|
       common_options c, :targets, :config, :force
-      c.action do |_,_,args|
+      c.action do |_, _, args|
         Command::Import.new(@options_hash, args).run
       end
     end
@@ -86,10 +89,8 @@ module Sanctum
     arg_name 'path/to/file'
     command :view do |c|
       common_options c, :targets, :config
-      c.action do |_,_,args|
-        if args.empty?
-          help_now! "Please specify at least one argument"
-        end
+      c.action do |_, _, args|
+        help_now! 'Please specify at least one argument' if args.empty?
         Command::View.new(@options_hash, args).run
       end
     end
@@ -99,7 +100,7 @@ module Sanctum
     command :edit do |c|
       common_options c, :targets, :config
 
-      c.action do |_,_,args|
+      c.action do |_, _, args|
         Command::Edit.new(@options_hash, args).run
       end
     end
@@ -113,15 +114,19 @@ module Sanctum
       end
     end
 
-    pre do |_,_,options,_|
-      @options_hash = GetConfig::ConfigMerge.new(config_file: options[:c], targets: options[:t], force: options[:force]).final_options
+    pre do |_, _, options, _|
+      @options_hash = GetConfig::ConfigMerge.new(
+        config_file: options[:c],
+        targets: options[:t],
+        force: options[:force]
+      ).final_options
+
       Colorizer.colorize = @options_hash[:sanctum][:color]
       true
     end
 
-    on_error do |exception|
+    on_error do |_|
       true
     end
-
   end
 end

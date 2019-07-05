@@ -1,4 +1,5 @@
 require "bundler/setup"
+require 'simplecov'
 require_relative "support/sanctum_test"
 
 RSpec.configure do |config|
@@ -12,6 +13,8 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 end
+
+SimpleCov.start
 
 # Little snippet taken from stackoverflow.com
 def with_captured_stdout

@@ -1,5 +1,7 @@
 ---
-require: rubocop-rspec
+require:
+  - rubocop-rspec
+  - rubocop-performance
 
 Rails:
   Enabled: false
@@ -9,8 +11,12 @@ AllCops:
   DisplayCopNames: true
   Exclude: []
   CacheRootDirectory: cache/
+  TargetRubyVersion: 2.5
 
 Bundler/OrderedGems:
+  Enabled: false
+
+Naming/HeredocDelimiterNaming:
   Enabled: false
 
 RSpec/ExampleLength:
@@ -22,9 +28,15 @@ Style/FormatString:
 Style/FormatStringToken:
   Enabled: false
 
+Style/RegexpLiteral:
+  EnforcedStyle: percent_r
+
 Style/StringLiterals:
-  EnforcedStyle: double_quotes
+  EnforcedStyle: single_quotes
   ConsistentQuotesInMultiline: true
+
+Style/SymbolArray:
+  Enabled: false
 
 Style/TrailingCommaInHashLiteral:
   EnforcedStyleForMultiline: consistent_comma
@@ -34,6 +46,12 @@ Style/TrailingCommaInArrayLiteral:
 
 Style/TrailingUnderscoreVariable:
   Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 110
 
 Metrics/MethodLength:
   Max: 25

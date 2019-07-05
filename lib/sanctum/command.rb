@@ -1,10 +1,12 @@
-#colorize_string needs to be required first
+# frozen_string_literal: true
+
+# colorize_string needs to be required first
 require 'sanctum/colorize_string'
 require 'sanctum/vault_client'
 require 'sanctum/vault_secrets'
 require 'sanctum/vault_transit'
 
-#base needs to be required first
+# base needs to be required first
 require 'sanctum/command/base'
 
 require 'sanctum/command/check'

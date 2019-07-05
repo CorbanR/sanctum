@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'fileutils'
 require 'json'
 require 'pathname'
@@ -6,20 +8,19 @@ require 'yaml'
 
 module Sanctum
   module Command
+    #:nodoc:
     class Create < Base
-
       def run(&block)
-        if args.one?
-          path = args.first
-          validate_path(path)
-          transit_key = determine_transit_key(path, targets)
-          create_file(path, transit_key, &block)
-        else
-          raise ArgumentError, red('Please pass only one path argument')
-        end
+        raise ArgumentError, red('Please pass only one path argument') unless args.one?
+
+        path = args.first
+        validate_path(path)
+        transit_key = determine_transit_key(path, targets)
+        create_file(path, transit_key, &block)
       end
 
       private
+
       def create_file(path, transit_key)
         # Calling vault_client will help prevent a race condition where the token is expired
         # and contents fail to encrypt
@@ -34,12 +35,12 @@ module Sanctum
           end
 
           contents = File.read(tmp_file.path)
-          data_hash = {"#{tmp_file.path}" => validate(contents)}
+          data_hash = { tmp_file.path.to_s => validate(contents) }
           write_encrypted_data(vault_client, data_hash, transit_key)
           tmp_file.close
 
           FileUtils.cp(tmp_file.path, path)
-        rescue Exception => e
+        rescue => e # rubocop:disable Style/RescueStandardError
           # If write_encrypted_data failed, data would fail to write to disk
           # It would be sad to lose that data, at least this would print the contents to the console.
           puts red("Contents may have failed to write\nError: #{e}")
@@ -53,11 +54,10 @@ module Sanctum
 
       def validate_path(path)
         path = Pathname.new(path)
-        raise yellow("File exists, use edit command") if path.exist?
+        raise yellow('File exists, use edit command') if path.exist?
 
         path.dirname.mkpath unless path.dirname.exist?
       end
-
     end
   end
 end

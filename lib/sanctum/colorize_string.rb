@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
 module Sanctum
+  #:nodoc:
   module Colorizer
     def self.colorize=(flag)
-      @colorize = !!flag
+      @colorize = !!flag # rubocop:disable Style/DoubleNegation
     end
 
     def self.colorize?

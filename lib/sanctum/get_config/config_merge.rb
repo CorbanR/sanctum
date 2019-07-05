@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'sanctum/get_config/config_file'
 require 'sanctum/get_config/env'
 require 'sanctum/get_config/hash_merger'

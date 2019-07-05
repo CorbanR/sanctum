@@ -1,23 +1,27 @@
+# frozen_string_literal: true
+
 require 'base64'
 require 'pathname'
 
 module Sanctum
+  #:nodoc:
   class VaultTransit
     extend Colorizer
 
     def self.encrypt(vault_client, secrets, transit_key)
       transit_key = Pathname.new(transit_key)
 
-      #TODO probably nice to do this check earlier on,
-      #Such as in command/base
-      unless transit_key_exist?(vault_client, transit_key)
-        raise red("#{transit_key} does not exist")
-      end
+      # TODO: probably nice to do this check earlier on,
+      # Such as in command/base
+      raise red("#{transit_key} does not exist") unless transit_key_exist?(vault_client, transit_key)
 
       secrets.each do |k, v|
         v = encode(v.to_json)
-        #TODO: Fix this....
-        v = vault_client.logical.write("#{transit_key.dirname.to_s.split("/")[0]}/encrypt/#{transit_key.basename}", plaintext: v)
+        # TODO: Fix this....
+        v = vault_client.logical.write(
+          "#{transit_key.dirname.to_s.split('/')[0]}/encrypt/#{transit_key.basename}",
+          plaintext: v
+        )
         secrets[k] = v
       end
       secrets
@@ -26,7 +30,10 @@ module Sanctum
     def self.decrypt(vault_client, secrets, transit_key)
       transit_key = Pathname.new(transit_key)
       secrets.each do |k, v|
-        v = vault_client.logical.write("#{transit_key.dirname.to_s.split("/")[0]}/decrypt/#{transit_key.basename}", ciphertext: v)
+        v = vault_client.logical.write(
+          "#{transit_key.dirname.to_s.split('/')[0]}/decrypt/#{transit_key.basename}",
+          ciphertext: v
+        )
         v = JSON(decode(v.data[:plaintext]))
         secrets[k] = v
       end
@@ -54,12 +61,12 @@ module Sanctum
     # @param vault_client [VaultClient] client used to interact with the vault api
     # @param secrets [hash] {"/vault/path": {key: value}}
     # @param secrets_version [String] vault backend version[1, 2]
-    def self.write_to_vault(vault_client, secrets, secrets_version="1")
+    def self.write_to_vault(vault_client, secrets, secrets_version = '1')
       secrets.each do |k, v|
         # Coerce vault data values to strings
         # To ensure a consistent experience pulling and pushing to vault
         v.transform_values!(&:to_s)
-        secrets_version == "2" ? vault_client.logical.write(k, data: v) : vault_client.logical.write(k, v)
+        secrets_version == '2' ? vault_client.logical.write(k, data: v) : vault_client.logical.write(k, v)
       end
     end
 
@@ -79,6 +86,5 @@ module Sanctum
       path = Pathname.new(path).parent.to_path
       FileUtils.mkdir_p(path) unless File.directory?(path)
     end
-
   end
 end

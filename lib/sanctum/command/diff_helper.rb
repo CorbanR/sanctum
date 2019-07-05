@@ -1,16 +1,18 @@
+# frozen_string_literal: true
+
 require 'hashdiff'
 
 module Sanctum
   module Command
+    #:nodoc:
     module DiffHelper
-
       def hash_diff(first_hash, second_hash)
         # Recently changed how data is written to local system and vault
         # TODO: The transform_values can be removed at a later date
         first_hash = first_hash.each { |_, v| v.transform_values!(&:to_s) }
         second_hash = second_hash.each { |_, v| v.transform_values!(&:to_s) }
 
-        differences = HashDiff.best_diff(first_hash, second_hash, delimiter: " => ", array_path: true)
+        differences = HashDiff.best_diff(first_hash, second_hash, delimiter: ' => ', array_path: true)
 
         differences.each do |diff|
           if diff[0] == "+"

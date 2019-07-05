@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'fileutils'
 
 module Sanctum
@@ -8,16 +10,17 @@ module Sanctum
       include Colorizer
       attr_reader :config_path, :example_file
 
-      def initialize(options={}, _args=[])
-        options = {working_dir: Dir.pwd}.merge(options)
+      def initialize(options = {}, _args = [])
+        options = { working_dir: Dir.pwd }.merge(options)
 
-        relative_path = File.expand_path File.dirname(__FILE__)
+        relative_path = File.expand_path(__dir__)
         @config_path = "#{options[:working_dir]}/sanctum.yaml"
         @example_file = "#{relative_path}/sanctum.example.yaml"
       end
 
       def run
-        raise yellow("config file already exists") if config_exist?
+        raise yellow('config file already exists') if config_exist?
+
         create_config_file
       end
 
@@ -28,7 +31,6 @@ module Sanctum
       def create_config_file
         FileUtils.cp(example_file, config_path)
       end
-
     end
   end
 end

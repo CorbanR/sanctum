@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module Sanctum
   module Command
+    #:nodoc:
     class Check < Base
-
       def run
         targets.each do |target|
           # Recursively get local files for each prefix specified in sanctum.yaml
@@ -23,7 +25,6 @@ module Sanctum
           compare_secrets(vault_secrets, local_secrets, target[:name])
         end
       end
-
     end
   end
 end
