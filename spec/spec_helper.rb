@@ -1,10 +1,23 @@
-require "bundler/setup"
+# frozen_string_literal: true
+
 require 'simplecov'
-require_relative "support/sanctum_test"
+SimpleCov.start do
+  %w[
+    /lib/tasks/
+    /spec/
+    /vendor/
+  ].each do |path|
+    add_filter path
+  end
+end
+
+require 'bundler/setup'
+require 'sanctum'
+require_relative 'support/sanctum_test'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
-  config.example_status_persistence_file_path = ".rspec_status"
+  config.example_status_persistence_file_path = '.rspec_status'
 
   # Disable RSpec exposing methods globally on `Module` and `main`
   config.disable_monkey_patching!
@@ -13,8 +26,6 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 end
-
-SimpleCov.start
 
 # Little snippet taken from stackoverflow.com
 def with_captured_stdout

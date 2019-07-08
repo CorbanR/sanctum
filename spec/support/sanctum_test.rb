@@ -1,5 +1,4 @@
 require "pathname"
-require "sanctum"
 require "tmpdir"
 
 module SanctumTest
