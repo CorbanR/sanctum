@@ -3,8 +3,8 @@
 
 The github repository is just a mirror of [ https://gitlab.com/CorbanR/sanctum ](https://gitlab.com/CorbanR/sanctum) please submit all issues and merge requests to gitlab.
 
-Simple and secure filesystem-to-vault KV synchronization. Inspired by [constancy](https://github.com/daveadams/constancy). 
-Local files are encrypted using vaults [transit](https://www.vaultproject.io/api/secret/transit/index.html) backend. 
+Simple and secure filesystem-to-vault KV synchronization. Inspired by [constancy](https://github.com/daveadams/constancy).
+Local files are encrypted using vaults [transit](https://www.vaultproject.io/api/secret/transit/index.html) backend.
 This makes maintaining multiple vault secrets for multiple applications simple and secure.
 
 ## Usage Example
@@ -89,12 +89,12 @@ sanctum update - Update secrets backend to v2 API.
 ## Configuration
 **sanctum.yaml is required, run `sanctum config` to generate an example file**
 
-Sanctum will use the **first `sanctum.yaml`** file it comes across when searching backwards through the directory tree from the current working directory. 
+Sanctum will use the **first `sanctum.yaml`** file it comes across when searching backwards through the directory tree from the current working directory.
 So, typically you may wish to place the config file in the root of your git repository or the base directory of your config file tree.
 
 You can also specify a config file using the -c,--config <filename> command line argument.
 ## Variables
-The example `sanctum.yaml` has all options documented, run `sanctum config` to generate an example file. 
+The example `sanctum.yaml` has all options documented, run `sanctum config` to generate an example file.
 
 The following environment variables are read.
 ```
@@ -142,7 +142,7 @@ See the [Transit Secrets Engine(API)](https://www.vaultproject.io/api/secret/tra
 
 1. Create a new key with, or enable `allow_plaintext_backup` and `exportable` on the transit key you are using for sanctum. **Once enabled  you cannot disable**
   * Example: `curl -v --header "X-Vault-Token: $VAULT_TOKEN" --request POST --data '{"allow_plaintext_backup": true, "exportable": true}' $VAULT_ADDR/v1/transit/keys/<my_transit_key>/config`
-2. `sanctum pull` 
+2. `sanctum pull`
 3. Get your transit key
   * Example: `curl -v --header "X-Vault-Token: $VAULT_TOKEN" --request GET $VAULT_ADDR/v1/transit/backup/<my_transit_key>`
 4. Securely store/ backup your key.

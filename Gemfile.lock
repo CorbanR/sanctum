@@ -90,6 +90,7 @@ GEM
     vault (0.12.0)
       aws-sigv4
     wisper (2.0.0)
+    yard (0.9.20)
 
 PLATFORMS
   ruby
@@ -105,6 +106,7 @@ DEPENDENCIES
   rubocop-rspec (~> 1.33.0)
   sanctum!
   simplecov (~> 0.17)
+  yard (~> 0.9)
 
 BUNDLED WITH
    1.17.2

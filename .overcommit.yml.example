@@ -17,19 +17,6 @@ CommitMsg:
     flags: ['-a']
 
 PreCommit:
-  Fasterer:
-    enabled: true
-    description: 'Analyzing for potential speed improvements'
-    required_executable: 'fasterer'
-    install_command: 'gem install fasterer'
-    include: '**/*.rb'
-    on_fail: 'warn'
-
-  RuboCop:
-    enabled: true
-    description: 'Run Rubocop'
-    command: ['bundle', 'exec', 'rubocop']
-
   BundleAudit:
     enabled: false
     description: 'Check for vulnerable versions of gems'
@@ -43,6 +30,14 @@ PreCommit:
     flags: ['outdated', '--strict', '--parseable']
     install_command: 'gem install bundler'
 
+  Fasterer:
+    enabled: false
+    description: 'Analyzing for potential speed improvements'
+    required_executable: 'fasterer'
+    install_command: 'gem install fasterer'
+    include: '**/*.rb'
+    on_fail: 'warn'
+
   HardTabs:
     enabled: true
     description: 'Check for hard tabs'
@@ -51,6 +46,27 @@ PreCommit:
     exclude:
       - '**/Makefile'
       - '**/*.go'
+
+  RuboCop:
+    enabled: true
+    description: 'Run Rubocop'
+    command: ['bundle', 'exec', 'rubocop']
+
+# TODO: It may make sense to run all or most pre-commit commands inside docker via docker-compose.
+  RSpec:
+    enabled: true
+    description: 'Run RSpec test suite'
+    required_executable: 'docker-compose'
+    command: [
+      'docker-compose',
+      'run',
+      '--name',
+      'rspec',
+      '--rm',
+      'sanctum',
+      'bundle',
+      'exec',
+      'rspec']
 
   TrailingWhitespace:
     enabled: true
