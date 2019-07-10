@@ -4,3 +4,9 @@ IFS=$'\n\t'
 set -vx
 
 bundle install
+
+# Install pre-commit hook
+if [ ! -f ".overcommit.yml" ]; then
+    cp .overcommit.yml.example .overcommit.yml
+    overcommit
+fi

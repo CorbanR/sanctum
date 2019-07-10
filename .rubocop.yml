@@ -3,9 +3,6 @@ require:
   - rubocop-rspec
   - rubocop-performance
 
-Rails:
-  Enabled: false
-
 AllCops:
   DefaultFormatter: progress
   DisplayCopNames: true

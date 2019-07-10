@@ -1,0 +1,59 @@
+---
+# Example config file:
+#   https://github.com/brigade/overcommit/blob/master/config/default.yml
+CommitMsg:
+  EmptyMessage:
+    enabled: true
+    description: 'Check for empty commit message'
+
+  HardTabs:
+    enabled: true
+    description: 'Check for hard tabs'
+
+  SpellCheck:
+    enabled: false
+    description: 'Check for misspelled words'
+    required_executable: 'hunspell'
+    flags: ['-a']
+
+PreCommit:
+  Fasterer:
+    enabled: true
+    description: 'Analyzing for potential speed improvements'
+    required_executable: 'fasterer'
+    install_command: 'gem install fasterer'
+    include: '**/*.rb'
+    on_fail: 'warn'
+
+  RuboCop:
+    enabled: true
+    description: 'Run Rubocop'
+    command: ['bundle', 'exec', 'rubocop']
+
+  BundleAudit:
+    enabled: false
+    description: 'Check for vulnerable versions of gems'
+    required_executable: 'bundle-audit'
+    install_command: 'gem install bundler-audit'
+
+  BundleOutdated:
+    enabled: true
+    description: 'List installed gems with newer versions available'
+    required_executable: 'bundle'
+    flags: ['outdated', '--strict', '--parseable']
+    install_command: 'gem install bundler'
+
+  HardTabs:
+    enabled: true
+    description: 'Check for hard tabs'
+    required_executable: 'grep'
+    flags: ['-IHn', "\t"]
+    exclude:
+      - '**/Makefile'
+      - '**/*.go'
+
+  TrailingWhitespace:
+    enabled: true
+    description: 'Check for trailing whitespace'
+    required_executable: 'grep'
+    flags: ['-IHn', "[ \t]$"]
