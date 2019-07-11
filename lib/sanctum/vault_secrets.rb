@@ -61,7 +61,7 @@ module Sanctum
     # Used by list_recursive method only
     # API version 2 uses /metadata path to list, but /data to read.
     # TODO Update to use kv from vault-ruby once available.
-    def read_data(item, parent = '') # rubocop:disable Metrics/AbcSize
+    def read_data(item, parent = '')
       me = File.join(parent, item)
 
       # me will contain /metadata if secrets_version 2 due to list_prefix method

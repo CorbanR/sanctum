@@ -1,5 +1,7 @@
-require "pathname"
-require "tmpdir"
+# frozen_string_literal: true
+
+require 'pathname'
+require 'tmpdir'
 
 module SanctumTest
   class Helpers
@@ -10,23 +12,29 @@ module SanctumTest
       # Path where sanctum config is located
       @config_path = Pathname.new(options.dig(:config_file)).parent.to_path
       @vault_client = Sanctum::VaultClient.build(options.dig(:vault).dig(:url), options.dig(:vault).dig(:token))
-      @vault_env = { "VAULT_ADDR" => options.dig(:vault).dig(:url), "VAULT_TOKEN" => options.dig(:vault).dig(:token) }
+      @vault_env = { 'VAULT_ADDR' => options.dig(:vault).dig(:url), 'VAULT_TOKEN' => options.dig(:vault).dig(:token) }
 
       # Disable color for testing
       Sanctum::Colorizer.colorize = options[:sanctum][:color]
     end
 
-    def vault_command(env={}, command=nil, stdout={ [:out]=>"/dev/null" })
+    def vault_command(env = {}, command = nil, stdout = { [:out] => '/dev/null' })
       env = vault_env.merge(env)
       system(env, command, stdout)
     end
 
-    def vault_setup(secrets_engine: "generic", secrets_version: nil)
+    def vault_setup(secrets_engine: 'generic', secrets_version: nil)
       # Ensure vault is up and running
-      Timeout::timeout(5){response = Net::HTTP.get_response(URI("#{options.dig(:vault).dig(:url)}/v1/sys/health")) rescue retry until response.kind_of? Net::HTTPSuccess}
+      Timeout.timeout(5) do
+        response = begin
+                                       Net::HTTP.get_response(URI("#{options.dig(:vault).dig(:url)}/v1/sys/health"))
+                   rescue StandardError
+                     retry
+                                     end until response.is_a? Net::HTTPSuccess
+      end
 
       # Enable transit backend
-      vault_command(vault_env, "vault secrets enable transit")
+      vault_command(vault_env, 'vault secrets enable transit')
       # Create transit key
       vault_command(vault_env, "vault write -f #{options.dig(:sanctum).dig(:transit_key)}")
       # Create secrets mount
@@ -39,7 +47,7 @@ module SanctumTest
 
     def vault_cleanup
       # Disable transit backend
-      vault_command(vault_env, "vault secrets disable transit")
+      vault_command(vault_env, 'vault secrets disable transit')
       # Disable secrets mount
       vault_command(vault_env, "vault secrets disable #{options.dig(:sync).first.dig(:prefix)}")
 
@@ -57,18 +65,18 @@ module SanctumTest
         sanctum: {
           force: false,
           color: false,
-          transit_key: "transit/keys/vault-test",
-          secrets_version: "auto",
+          transit_key: 'transit/keys/vault-test',
+          secrets_version: 'auto',
         },
         vault: {
-          url: "http://vault:8200",
-          token: "514c55f0-c452-99e3-55e0-8301b770b92c",
+          url: 'http://vault:8200',
+          token: '514c55f0-c452-99e3-55e0-8301b770b92c',
         },
         sync: [
           {
-            name: "vault-test",
-            prefix: "vault-test",
-            path: "vault/vault-test",
+            name: 'vault-test',
+            prefix: 'vault-test',
+            path: 'vault/vault-test',
           },
         ],
         cli: {

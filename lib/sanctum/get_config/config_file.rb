@@ -7,9 +7,10 @@ module Sanctum
     class ConfigFile
       attr_reader :config_file
 
-      def initialize(config_file=nil)
-        raise "Please create or specify a config file. `sanctum config --help`" if config_file.nil?
-        raise "Config file not found" unless File.file?(config_file)
+      def initialize(config_file = nil)
+        raise 'Please create or specify a config file. `sanctum config --help`' if config_file.nil?
+        raise 'Config file not found' unless File.file?(config_file)
+
         @config_file = config_file
       end
 
@@ -26,8 +27,8 @@ module Sanctum
         config_hash = YAML.load_file(config_file)
         config_hash.compact!
         deep_symbolize(config_hash)
-      rescue
-        raise "Please ensure your config file is formatted correctly. `sanctum config --help`"
+      rescue StandardError
+        raise 'Please ensure your config file is formatted correctly. `sanctum config --help`'
       end
 
       def deep_symbolize(obj)
@@ -42,7 +43,6 @@ module Sanctum
           obj
         end
       end
-
     end
   end
 end

@@ -6,15 +6,14 @@ module Sanctum
       attr_reader :env_options
 
       def initialize
-        @env_options = { vault: { url: ENV["VAULT_ADDR"], token: ENV["VAULT_TOKEN"] } }
+        @env_options = { vault: { url: ENV['VAULT_ADDR'], token: ENV['VAULT_TOKEN'] } }
       end
 
       def run
-        env_options.each do |key, value|
+        env_options.each do |_key, value|
           value.compact!
         end
       end
-
     end
   end
 end

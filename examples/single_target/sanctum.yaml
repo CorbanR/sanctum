@@ -1,14 +1,22 @@
-# sanctum.yml
+---
 sanctum:
   force: false
   color: true
+  transit_key: transit/keys/sanctum-test
 
 vault:
   url: http://localhost:8200
-  token: my_cool_token
-  transit_key: transit/keys/sanctum-test
+  token: 514c55f0-c452-99e3-55e0-8301b770b92c # Matches token defined in docker-compose.yml
 
 sync:
-  - name: sanctum-test
-    prefix: sanctum-test    #Refers to vault
-    path: vault/sanctum-test #Refers to local path relative to sanctum.yaml
+  - name: sanctum-test-v1
+    prefix: sanctum-test-v1      # Refers to vault
+    path: vault/sanctum-test-v1  # Refers to local path relative to sanctum.yaml
+
+  - name: sanctum-test-v2
+    prefix: sanctum-test-v2      # Refers to vault
+    path: vault/sanctum-test-v2  # Refers to local path relative to sanctum.yaml
+
+  - name: sanctum-test-generic
+    prefix: sanctum-test-generic      # Refers to vault
+    path: vault/sanctum-test-generic  # Refers to local path relative to sanctum.yaml

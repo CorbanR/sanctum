@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>=2.5.0'
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
-    exclude = [%r{^(test|spec|features|examples)/}, %r{docker.*}i, %r{\.gitlab-ci.yml}]
+    exclude = [%r{^(test|spec|features|examples|tmp|coverage|cache)/}, %r{docker.*}i, %r{\.gitlab-ci.yml}]
     f.match(Regexp.union(exclude))
   end
 
@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'gli', '~> 2.18'
-  spec.add_dependency 'hashdiff', '~> 0.3'
+  spec.add_dependency 'hashdiff', ['>= 1.0.0.beta1', '< 2.0.0']
   spec.add_dependency 'tty-editor', '~> 0.5'
   spec.add_dependency 'vault', '~> 0.12'
 

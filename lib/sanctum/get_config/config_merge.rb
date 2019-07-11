@@ -5,17 +5,15 @@ require 'sanctum/get_config/env'
 require 'sanctum/get_config/hash_merger'
 require 'sanctum/get_config/options'
 
-
 module Sanctum
   module GetConfig
     class ConfigMerge
-
       using HashMerger
       attr_reader :config_file, :targets, :force
 
-      def initialize(config_file: , targets: , force: )
+      def initialize(config_file:, targets:, force:)
         @config_file = config_file
-        @targets = targets.split(/\,/).map(&:strip) unless targets.nil?
+        @targets = targets.split(%r{\,}).map(&:strip) unless targets.nil?
         @force = force
       end
 
@@ -48,7 +46,7 @@ module Sanctum
       end
 
       def check_targets(targets, config_options)
-        tmp_array = Array.new
+        tmp_array = []
         sync = config_options[:sync]
 
         targets.each do |t|
@@ -58,15 +56,13 @@ module Sanctum
         end
 
         if tmp_array.empty?
-          valid_targets = sync.map{|h| h[:name]}
+          valid_targets = sync.map { |h| h[:name] }
           raise "Please specify at least one valid target\n Valid targets are #{valid_targets}"
         end
 
         config_options[:sync] = tmp_array
         config_options
       end
-
-
     end
   end
 end

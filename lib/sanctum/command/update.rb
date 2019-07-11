@@ -1,20 +1,17 @@
 # frozen_string_literal: true
 
-require "pathname"
+require 'pathname'
 
 module Sanctum
   module Command
     class Update < Base
       def run
-        raise red("Please only specify one target") if targets.count > 1
+        raise red('Please only specify one target') if targets.count > 1
+
         target = targets.first
 
         # Use command line if force: true
-        if options[:cli][:force]
-          force = options[:cli][:force]
-        else
-          force = target.fetch(:force) {options[:sanctum][:force]}
-        end
+        force = options[:cli][:force] || target.fetch(:force) { options[:sanctum][:force] }
 
         update_mount(target, force)
       end
@@ -22,17 +19,17 @@ module Sanctum
       private
 
       def update_mount(target, force)
-        data = { options: { version: "2" }, listing_visability: "unauth" }.to_json
+        data = { options: { version: '2' }, listing_visability: 'unauth' }.to_json
         pre_upgrade_warning
 
         if force
           # When force option is used we will try to run the upgrade command mount, even if it's already been upgraded
           # Request will be a no-op and return null. So we need to remove `data` from the prefix if it's been added.
-          force_prefix = target[:prefix].include?("/data") ? target[:prefix].sub(/\/data/, "") : target[:prefix]
+          force_prefix = target[:prefix].include?('/data') ? target[:prefix].sub(%r{/data}, '') : target[:prefix]
           warn yellow("\nUpgrading #{force_prefix}")
           upgrade_response = vault_client.request(:post, "/v1/sys/mounts/#{force_prefix}/tune", data)
         else
-          already_upgraded_warning if target[:secrets_version] == "2"
+          already_upgraded_warning if target[:secrets_version] == '2'
           upgrade_response = confirm_upgrade?(target) ? vault_client.request(:post, "/v1/sys/mounts/#{target[:prefix]}/tune", data) : nil
         end
         upgrade_response.nil? ? nothing_happened_warning : (warn yellow("#{upgrade_response}\n#{post_upgrade_warning}"))
@@ -73,17 +70,17 @@ module Sanctum
 
       def nothing_happened_warning
         warn yellow(
-          "Request returned a nil response, which could mean mount is already upgraded"
+          'Request returned a nil response, which could mean mount is already upgraded'
         )
       end
 
       def confirm_upgrade?(target)
         warn yellow("\nUpgrading will make the mount temporarily unavailable")
         warn red("\nPlease ensure you are fully synced(all secrets have been pushed/pulled)")
-        warn yellow("Would you like to continue?: ")
+        warn yellow('Would you like to continue?: ')
         question = STDIN.gets.chomp.upcase
 
-        if ["Y", "YES"].include? question
+        if %w[Y YES].include? question
           warn yellow("\nUpgrading #{target[:prefix]}")
           true
         else

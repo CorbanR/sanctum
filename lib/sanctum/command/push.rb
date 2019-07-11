@@ -6,16 +6,11 @@ require 'json'
 module Sanctum
   module Command
     class Push < Base
-
       def run
-        puts yellow("Running `push` for the following targets: \n#{targets.map{ |h| h.dig(:name)}.to_yaml.gsub("---\n", '')}")
+        puts yellow("Running `push` for the following targets: \n#{targets.map { |h| h.dig(:name) }.to_yaml.gsub("---\n", '')}")
         targets.each do |target|
           # Use command line if force: true
-          if options[:cli][:force]
-            force = options[:cli][:force]
-          else
-            force = target.fetch(:force) {options[:sanctum][:force]}
-          end
+          force = options[:cli][:force] || target.fetch(:force) { options[:sanctum][:force] }
 
           # Build array of local paths by recursively searching for local files for each path specified in sanctum.yaml
           local_paths = get_local_paths(File.join(File.dirname(config_file), target[:path]))
@@ -25,24 +20,25 @@ module Sanctum
 
           # Compare secrets
           # vault_secrets prefix have been mapped to local_paths to make comparison easier
-          differences = compare_secrets(vault_secrets, local_secrets, target[:name], "push")
+          differences = compare_secrets(vault_secrets, local_secrets, target[:name], 'push')
           next if differences.nil?
 
-          # Get uniq array of HashDiff returned paths
-          diff_paths = differences.map{|x| x[1][0]}.uniq
+          # Get uniq array of Hashdiff returned paths
+          diff_paths = differences.map { |x| x[1][0] }.uniq
 
           # Only write changes
           vault_secrets = only_changes(diff_paths, local_secrets)
 
-          #Convert paths back to vault prefix so we can sync
-          vault_secrets = vault_secrets.map {|k, v| [k.gsub(File.join(File.dirname(config_file), target[:path]), target[:prefix]), v] }.to_h
+          # Convert paths back to vault prefix so we can sync
+          vault_secrets = vault_secrets.map { |k, v| [k.gsub(File.join(File.dirname(config_file), target[:path]), target[:prefix]), v] }.to_h
 
           if force
             warn red("#{target[:name]}: Forcefully writing differences to vault(push)")
             VaultTransit.write_to_vault(vault_client, vault_secrets, target[:secrets_version])
           else
-            #Confirm with user, and write to local file if approved
+            # Confirm with user, and write to local file if approved
             next unless confirmed_with_user?
+
             VaultTransit.write_to_vault(vault_client, vault_secrets, target[:secrets_version])
           end
         end
@@ -52,14 +48,14 @@ module Sanctum
       # VaultSecrets client.
       # TODO: remove this method once code is rearranged
       def read_remote(paths, prefix, secrets_version)
-        tmp_hash = Hash.new
-        paths.each do |k,v|
+        tmp_hash = {}
+        paths.each do |k, v|
           p = File.join(prefix, k)
-          unless vault_client.logical.read(p).nil?
-            v = secrets_version == "2" ? vault_client.logical.read(p).data[:data] : vault_client.logical.read(p).data
-            tmp_hash["#{k}"] = v
-          else
+          if vault_client.logical.read(p).nil?
             next
+          else
+            v = secrets_version == '2' ? vault_client.logical.read(p).data[:data] : vault_client.logical.read(p).data
+            tmp_hash[k.to_s] = v
           end
         end
         tmp_hash
@@ -67,11 +63,11 @@ module Sanctum
 
       def map_local_path(secrets_hash, local_path)
         config_path = Pathname.new(config_file)
-        tmp_hash = Hash.new
+        tmp_hash = {}
 
         secrets_hash.map do |p, v|
           p = config_path.dirname + Pathname.new(File.join(local_path, p))
-          tmp_hash["#{p}"] = v
+          tmp_hash[p.to_s] = v
         end
         tmp_hash
       end
@@ -85,7 +81,7 @@ module Sanctum
 
       def build_vault_secrets(local_paths, target_prefix, target_path, secrets_version)
         # Map local_paths into vault_paths
-        vault_paths = local_paths.map{|x| x.gsub(File.join(File.dirname(config_file), target_path), "")}
+        vault_paths = local_paths.map { |x| x.gsub(File.join(File.dirname(config_file), target_path), '') }
 
         # Get vault secrets (if they exist) for each vault prefix specified in sanctum.yaml that also maps to a local path
         # This means that we will only compare secrets/paths that exist both locally and in vault.
@@ -98,7 +94,6 @@ module Sanctum
         # Convert to json, then read, to make keys strings vs symbols
         vault_secrets = JSON(map_local_path(vault_secrets, target_path).to_json)
       end
-
     end
   end
 end

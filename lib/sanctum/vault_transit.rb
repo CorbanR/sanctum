@@ -13,7 +13,9 @@ module Sanctum
 
       # TODO: probably nice to do this check earlier on,
       # Such as in command/base
-      raise red("#{transit_key} does not exist") unless transit_key_exist?(vault_client, transit_key)
+      unless transit_key_exist?(vault_client, transit_key)
+        raise red("transit_key: #{transit_key.inspect}, does not exist")
+      end
 
       secrets.each do |k, v|
         v = encode(v.to_json)
