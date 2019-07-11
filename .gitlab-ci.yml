@@ -17,34 +17,23 @@ stages:
   - build
   - test
 
-build:
-  stage: build
+test:
+  stage: test
   before_script:
     - docker version
     - docker info
     - docker-compose version
+  # TODO: Possibly look into adding something like GNU Parallel
+  # to speed things up if more testing is added
   script:
     - docker-compose build --pull --parallel --compress
     - docker-compose run --name build-${CI_JOB_ID} -T --rm sanctum ls -lart -hu
-  tags:
-    - docker
-
-rspec:
-  stage: test
-  script:
     - docker-compose run --name rspec-${CI_JOB_ID} -T --rm sanctum bundle exec rspec
-  tags:
-    - docker
-
-rubocop:
-  stage: test
-  script:
     - docker-compose run --name rubocop-${CI_JOB_ID} -T --rm sanctum bundle exec rubocop
+  # Was hoping to use a cleanup stage, but see
+  # https://gitlab.com/gitlab-org/gitlab-runner/issues/1099
+  # and https://gitlab.com/gitlab-org/gitlab-runner/issues/1099
+  after_script:
+    - docker-compose down --remove-orphans --volumes
   tags:
     - docker
-
-# Was hoping to use a cleanup stage, but see
-# https://gitlab.com/gitlab-org/gitlab-runner/issues/1099
-# and https://gitlab.com/gitlab-org/gitlab-runner/issues/1099
-after_script:
-  - docker-compose down --remove-orphans --volumes
