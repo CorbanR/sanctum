@@ -27,6 +27,8 @@ Gem::Specification.new do |spec|
   spec.executables   = 'sanctum'
   spec.require_paths = ['lib']
 
+  spec.add_dependency 'concurrent-ruby', '~> 1.0'
+  spec.add_dependency 'dry-struct', '~> 1.0'
   spec.add_dependency 'gli', '~> 2.18'
   spec.add_dependency 'hashdiff', ['>= 1.0.0.beta1', '< 2.0.0']
   spec.add_dependency 'tty-editor', '~> 0.5'
