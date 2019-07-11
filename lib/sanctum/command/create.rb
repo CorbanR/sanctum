@@ -40,7 +40,7 @@ module Sanctum
           tmp_file.close
 
           FileUtils.cp(tmp_file.path, path)
-        rescue => e # rubocop:disable Style/RescueStandardError
+        rescue StandardError => e
           # If write_encrypted_data failed, data would fail to write to disk
           # It would be sad to lose that data, at least this would print the contents to the console.
           puts red("Contents may have failed to write\nError: #{e}")

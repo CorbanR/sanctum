@@ -14,24 +14,37 @@ services:
   - docker:dind
 
 stages:
+  - build
   - test
-  - cleanup
 
-before_script:
-  - docker version
-  - docker info
-  - docker-compose version
-
-testing:
-  stage: test
+build:
+  stage: build
+  before_script:
+    - docker version
+    - docker info
+    - docker-compose version
   script:
     - docker-compose build --pull --parallel --compress
-    - docker-compose run --name ${CI_JOB_ID} -T --rm sanctum ls -lart -hu
-    - docker-compose run --name ${CI_JOB_ID} -T --rm sanctum bundle exec rspec
-  # Was hoping to use a cleanup stage, but see
-  # https://gitlab.com/gitlab-org/gitlab-runner/issues/1099
-  # and https://gitlab.com/gitlab-org/gitlab-runner/issues/1099
-  after_script:
-    - docker-compose down --remove-orphans --volumes
+    - docker-compose run --name build-${CI_JOB_ID} -T --rm sanctum ls -lart -hu
   tags:
     - docker
+
+rspec:
+  stage: test
+  script:
+    - docker-compose run --name rspec-${CI_JOB_ID} -T --rm sanctum bundle exec rspec
+  tags:
+    - docker
+
+rubocop:
+  stage: test
+  script:
+    - docker-compose run --name rubocop-${CI_JOB_ID} -T --rm sanctum bundle exec rubocop
+  tags:
+    - docker
+
+# Was hoping to use a cleanup stage, but see
+# https://gitlab.com/gitlab-org/gitlab-runner/issues/1099
+# and https://gitlab.com/gitlab-org/gitlab-runner/issues/1099
+after_script:
+  - docker-compose down --remove-orphans --volumes
