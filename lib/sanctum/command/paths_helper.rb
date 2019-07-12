@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'find'
-require 'pathname'
 
 module Sanctum
   module Command

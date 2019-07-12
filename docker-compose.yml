@@ -16,4 +16,7 @@ services:
       SKIP_SETCAP: "true"
       VAULT_DEV_ROOT_TOKEN_ID: "514c55f0-c452-99e3-55e0-8301b770b92c"
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+    ports:
+      - "8200:8200"
+    restart: on-failure
     command: ["vault", "server", "-dev"]

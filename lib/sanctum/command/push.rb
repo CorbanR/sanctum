@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'pathname'
-require 'json'
-
 module Sanctum
   module Command
     class Push < Base

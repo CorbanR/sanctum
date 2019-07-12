@@ -52,11 +52,12 @@ PreCommit:
     description: 'Run Rubocop'
     command: ['bundle', 'exec', 'rubocop']
 
-# TODO: It may make sense to run all or most pre-commit commands inside docker via docker-compose.
   RSpec:
     enabled: true
     description: 'Run RSpec test suite'
     required_executable: 'docker-compose'
+    # env:
+    #  COMPOSE_FILE: docker-compose.yml:docker-compose.override.yml
     command: [
       'docker-compose',
       'run',

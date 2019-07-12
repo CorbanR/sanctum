@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require 'json'
 require 'securerandom'
 require 'tty-editor'
-require 'yaml'
 
 module Sanctum
   module Command

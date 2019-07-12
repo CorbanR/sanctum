@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-require 'fileutils'
-require 'tempfile'
-require 'yaml'
-require 'json'
-
 module Sanctum
   module Command
     class Import < Base

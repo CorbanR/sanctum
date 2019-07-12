@@ -59,11 +59,19 @@ module Sanctum
       end
     end
 
-    desc 'Creates example config file'
     skips_pre
     command :config do |c|
       c.action do
-        Command::Config.new.run
+        exit_now!('Deprecated: use `sanctum init`')
+      end
+    end
+
+    desc 'Initializes sanctum'
+    skips_pre
+    command :init do |c|
+      common_options c, :config
+      c.action do |_, options, _args|
+        Command::Init.new(options).run
       end
     end
 

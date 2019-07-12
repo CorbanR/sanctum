@@ -1,4 +1,19 @@
-# sanctum.yml
+# frozen_string_literal: true
+
+require 'erb'
+
+module Sanctum
+  module Templates
+    # TODO: Update template to use calculated default config(via config class)
+    #
+    # Using erb, render example sanctum.yaml
+    class Init
+      attr_reader :template
+
+      def initialize
+        # rubocop:disable Style/UnneededPercentQ
+        @template = %q{
+---
 sanctum:
   # color - defaults to true. Setting to false will disable color to tty
   #color: true
@@ -58,3 +73,13 @@ sync:
     #transit_key: transit/keys/app-baz-all
     #secrets_version: 2
     #force: false
+        }.strip
+        # rubocop:enable Style/UnneededPercentQ
+      end
+
+      def render
+        ERB.new(template, trim_mode: '%<>').result
+      end
+    end
+  end
+end

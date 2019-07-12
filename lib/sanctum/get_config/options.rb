@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'etc'
-require 'pathname'
 
 module Sanctum
   module GetConfig

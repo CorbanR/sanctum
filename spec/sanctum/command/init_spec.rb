@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Sanctum::Command::Config do
+RSpec.describe Sanctum::Command::Init do
   let(:helper) { SanctumTest::Helpers.new }
   let(:config_path) { helper.config_path }
 
