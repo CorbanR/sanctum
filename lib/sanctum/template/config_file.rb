@@ -3,7 +3,7 @@
 require 'erb'
 
 module Sanctum
-  module Templates
+  module Template
     # Using erb, render example sanctum.yaml
     class ConfigFile
       def initialize
