@@ -106,10 +106,12 @@ VAULT_TOKEN=
 The higher the number the higher the precedence.(1 is the lowest precedence, 4 is the highest, Command line arguments will always win).
 
 1. Default variables (Documented in sanctum.yaml)
-2. Config file
-3. Environment variables
+2. Environment variables*
+3. Config file*
 4. Command line arguments.
 
+**NOTE: previously environment variables took precedence. However, I have plans to add multiple authentication support(token, certificate, etc) to sanctum.
+I think it makes more sense to use the tokens, or certs if specified in the config file. This means that values specified in sanctum.yaml will take precedence over environment variables.**
 
 ## Configuration file structure
 The configuration file is a Hash represented in YAML format with three possible top-level keys: `sanctum`, `vault`, and `sync`.

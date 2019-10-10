@@ -23,7 +23,7 @@ module Sanctum
       end
 
       def vault_client
-        @vault_client ||= VaultClient.build(options[:vault][:url], options[:vault][:token])
+        @vault_client ||= VaultClient.build(options[:vault][:addr], options[:vault][:token])
       end
 
       private

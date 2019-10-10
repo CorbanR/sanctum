@@ -29,8 +29,8 @@ sanctum:
   #transit_key: transit/keys/app-foo
 
 vault:
-  # url - will use `ENV["VAULT_ADDR"]` if available, otherwise defaults to http://localhost:8200
-  #url: http://localhost:8200
+  # addr - will use `ENV["VAULT_ADDR"]` if available, otherwise defaults to http://localhost:8200
+  #addr: http://localhost:8200
   # token - (required) will use `ENV["VAULT_TOKEN"]` if available, otherwise tries to read from `ENV["HOME"]/.vault-token`
   #token: aaabbbcc-ddee-ffgg-hhii-jjkkllmmnnoop
 
