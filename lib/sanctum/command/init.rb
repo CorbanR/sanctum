@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'sanctum/templates/init'
+require 'sanctum/templates/config_file'
 
 module Sanctum
   module Command
@@ -14,7 +14,7 @@ module Sanctum
         options = { working_dir: Pathname.getwd }.merge(options).compact
 
         @config_path = options.key?(:config) ? Pathname.new(options[:config]) : options[:working_dir] + 'sanctum.yaml'
-        @contents = Templates::Init.new.render
+        @contents = Templates::ConfigFile.new.render
       end
 
       def run

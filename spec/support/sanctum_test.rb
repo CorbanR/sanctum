@@ -50,13 +50,6 @@ module SanctumTest
       vault_command(vault_env, 'vault secrets disable transit')
       # Disable secrets mount
       vault_command(vault_env, "vault secrets disable #{VAULT_PREFIX}")
-
-      # Cleanup config_file and targets local paths
-      if File.file?(options[:config_file])
-        options.dig(:sync).each do |f|
-          FileUtils.rm_rf([options[:config_file], "#{config_path}/#{f[:path]}/"], secure: true)
-        end
-      end
     end
 
     def cleanup
