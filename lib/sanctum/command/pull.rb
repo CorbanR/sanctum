@@ -10,7 +10,7 @@ module Sanctum
           force = options[:cli][:force] || target.fetch(:force) { options[:sanctum][:force] }
 
           # Recursively get vault secrets for each prefix specified in sanctum.yaml
-          secrets_list = VaultSecrets.new(vault_client, target[:prefix], target[:secrets_version]).get_all
+          secrets_list = Adapter::Vault::Secrets.new(vault_client, target[:prefix], target[:secrets_version]).get_all
           secrets_list.each do |_k, v|
             vault_secrets = build_vault_secrets(v, [target[:path]])
             local_secrets = build_local_secrets(vault_secrets, target[:transit_key])
@@ -28,12 +28,12 @@ module Sanctum
             if force
               # Write files to disk and encrypt with transit
               warn red("#{target[:name]}: Forcefully writing differences to disk(pull)")
-              VaultTransit.write_to_file(vault_client, vault_secrets, target[:transit_key])
+              Adapter::Vault::Transit.write_to_file(vault_client, vault_secrets, target[:transit_key])
             else
               # Confirm with user, and write to local file if approved
               next unless confirmed_with_user?
 
-              VaultTransit.write_to_file(vault_client, vault_secrets, target[:transit_key])
+              Adapter::Vault::Transit.write_to_file(vault_client, vault_secrets, target[:transit_key])
             end
           end
         end
@@ -64,7 +64,7 @@ module Sanctum
         # We will not for example, see differences if a file exists locally but not in vault.
         local_secrets = read_local_files(vault_secrets)
         # Decrypt local_secrets
-        local_secrets = VaultTransit.decrypt(vault_client, local_secrets, transit_key)
+        local_secrets = Adapter::Vault::Transit.decrypt(vault_client, local_secrets, transit_key)
         local_secrets
       end
     end

@@ -23,7 +23,7 @@ module Sanctum
       end
 
       def vault_client
-        @vault_client ||= VaultClient.build(options[:vault][:addr], options[:vault][:token])
+        @vault_client ||= Adapter::Vault::Client.build(options[:vault][:addr], options[:vault][:token])
       end
 
       private
@@ -34,7 +34,7 @@ module Sanctum
       # Returns: hash
       def mounts_info
         @mounts_info ||= vault_client.request(:get, '/v1/sys/internal/ui/mounts')
-      rescue Vault::VaultError
+      rescue Adatper::Vault::VaultError
         unable_to_determine_version
         raise
       end

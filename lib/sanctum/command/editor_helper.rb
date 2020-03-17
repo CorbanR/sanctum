@@ -9,11 +9,11 @@ module Sanctum
       include Colorizer
 
       def decrypt_data(vault_client, data, transit_key)
-        VaultTransit.decrypt(vault_client, data, transit_key)
+        Adapter::Vault::Transit.decrypt(vault_client, data, transit_key)
       end
 
       def write_encrypted_data(vault_client, data, transit_key)
-        VaultTransit.write_to_file(vault_client, data, transit_key)
+        Adapter::Vault::Transit.write_to_file(vault_client, data, transit_key)
       end
 
       def validate(contents)

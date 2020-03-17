@@ -19,7 +19,7 @@ RSpec.describe Sanctum::Command::Create do
     end
 
     encrypted_file = args[0]
-    decrypted_contents = Sanctum::VaultTransit.decrypt(vault_client, { encrypted_file => File.read(encrypted_file) }, options[:sanctum][:transit_key])
+    decrypted_contents = Sanctum::Adapter::Vault::Transit.decrypt(vault_client, { encrypted_file => File.read(encrypted_file) }, options[:sanctum][:transit_key])
 
     expect(File.file?(encrypted_file)).to be(true)
     expect(File.read(encrypted_file)).to include('vault')

@@ -13,7 +13,7 @@ module Sanctum
 
         # TODO: Fix later, expects an array of paths
         local_secrets = read_local_files([path.to_s])
-        local_secrets = VaultTransit.decrypt(vault_client, local_secrets, transit_key)
+        local_secrets = Adapter::Vault::Transit.decrypt(vault_client, local_secrets, transit_key)
         begin
           IO.popen(command, 'w') { |f| f.puts local_secrets.to_yaml.to_s }
         rescue StandardError

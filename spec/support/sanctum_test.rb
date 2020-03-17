@@ -14,7 +14,7 @@ module SanctumTest
 
     def initialize
       Sanctum::Colorizer.colorize = false
-      @vault_client = Sanctum::VaultClient.build(VAULT_ADDR, VAULT_TOKEN)
+      @vault_client = Sanctum::Adapter::Vault::Client.build(VAULT_ADDR, VAULT_TOKEN)
       @vault_env = { 'VAULT_ADDR' => VAULT_ADDR, 'VAULT_TOKEN' => VAULT_TOKEN }
     end
 

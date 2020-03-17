@@ -31,18 +31,18 @@ module Sanctum
 
           if force
             warn red("#{target[:name]}: Forcefully writing differences to vault(push)")
-            VaultTransit.write_to_vault(vault_client, vault_secrets, target[:secrets_version])
+            Adapter::Vault::Transit.write_to_vault(vault_client, vault_secrets, target[:secrets_version])
           else
             # Confirm with user, and write to local file if approved
             next unless confirmed_with_user?
 
-            VaultTransit.write_to_vault(vault_client, vault_secrets, target[:secrets_version])
+            Adapter::Vault::Transit.write_to_vault(vault_client, vault_secrets, target[:secrets_version])
           end
         end
       end
 
       # Right now this duplicates a bit of logic that already exists in
-      # VaultSecrets client.
+      # Adapter::Vault::Secrets client.
       # TODO: remove this method once code is rearranged
       def read_remote(paths, prefix, secrets_version)
         tmp_hash = {}
@@ -73,7 +73,7 @@ module Sanctum
         # Read each local file
         local_secrets = read_local_files(local_paths)
         # Decrypt local secrets
-        local_secrets = VaultTransit.decrypt(vault_client, local_secrets, transit_key)
+        local_secrets = Adapter::Vault::Transit.decrypt(vault_client, local_secrets, transit_key)
       end
 
       def build_vault_secrets(local_paths, target_prefix, target_path, secrets_version)

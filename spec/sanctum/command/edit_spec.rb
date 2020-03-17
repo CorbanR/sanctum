@@ -17,7 +17,7 @@ RSpec.describe Sanctum::Command::Edit do
     # Create tmp folder
     FileUtils.mkdir_p(config_path)
     # Write transit encrypted data to local file to test edit command
-    Sanctum::VaultTransit.write_to_file(vault_client, { args[0] => { 'keyone' => random_value_one.to_s } }, options[:sanctum][:transit_key])
+    Sanctum::Adapter::Vault::Transit.write_to_file(vault_client, { args[0] => { 'keyone' => random_value_one.to_s } }, options[:sanctum][:transit_key])
   end
 
   it 'edits an encrypted file' do
@@ -27,7 +27,7 @@ RSpec.describe Sanctum::Command::Edit do
     end
 
     encrypted_file = args[0]
-    decrypted_contents = Sanctum::VaultTransit.decrypt(vault_client, { encrypted_file => File.read(encrypted_file) }, options[:sanctum][:transit_key])
+    decrypted_contents = Sanctum::Adapter::Vault::Transit.decrypt(vault_client, { encrypted_file => File.read(encrypted_file) }, options[:sanctum][:transit_key])
 
     expect(File.file?(encrypted_file)).to be(true)
     expect(File.read(encrypted_file)).to include('vault')

@@ -2,9 +2,9 @@
 
 # colorize_string needs to be required first
 require 'sanctum/colorize_string'
-require 'sanctum/vault_client'
-require 'sanctum/vault_secrets'
-require 'sanctum/vault_transit'
+require 'sanctum/adapter/vault/client'
+require 'sanctum/adapter/vault/secrets'
+require 'sanctum/adapter/vault/transit'
 
 # base needs to be required first
 require 'sanctum/command/base'

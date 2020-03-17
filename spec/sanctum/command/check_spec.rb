@@ -2,10 +2,10 @@
 
 RSpec.describe Sanctum::Command::Check do
   let(:helper) { SanctumTest::Helpers.new }
-  let(:options) { helper.options }
+  let(:options) { helper.test_values }
   let(:vault_client) { helper.vault_client }
   let(:vault_env) { helper.vault_env }
-  let(:config_path) { helper.config_path }
+  let(:config_file) { helper.test_file }
   let(:random_value_one) { ('a'..'z').to_a.sample(8).join }
   let(:random_value_two) { ('a'..'z').to_a.sample(8).join }
 
@@ -15,7 +15,7 @@ RSpec.describe Sanctum::Command::Check do
       helper.vault_setup(secrets_engine: 'generic')
 
       # Write transit encrypted data to local file to test check command
-      Sanctum::VaultTransit.write_to_file(vault_client, { "#{config_path}/#{options.dig(:sync).first.dig(:path)}/iad/dev/env" => { 'keyone' => random_value_one.to_s } }, options[:sanctum][:transit_key])
+      Sanctum::Adapter::Vault::Transit.write_to_file(vault_client, { "#{config_path}/#{options.dig(:sync).first.dig(:path)}/iad/dev/env" => { 'keyone' => random_value_one.to_s } }, options[:sanctum][:transit_key])
       # Write secrets to vault for testing check command
       helper.vault_command(vault_env, "vault write #{options.dig(:sync).first.dig(:prefix)}/iad/prod/env keyone=#{random_value_one} keytwo=#{random_value_two}")
     end
@@ -34,7 +34,7 @@ RSpec.describe Sanctum::Command::Check do
       helper.vault_setup(secrets_engine: 'kv', secrets_version: 1)
 
       # Write transit encrypted data to local file to test check command
-      Sanctum::VaultTransit.write_to_file(vault_client, { "#{config_path}/#{options.dig(:sync).first.dig(:path)}/iad/dev/env" => { 'keyone' => random_value_one.to_s } }, options[:sanctum][:transit_key])
+      Sanctum::Adapter::Vault::Transit.write_to_file(vault_client, { "#{config_path}/#{options.dig(:sync).first.dig(:path)}/iad/dev/env" => { 'keyone' => random_value_one.to_s } }, options[:sanctum][:transit_key])
       # Write secrets to vault for testing check command
       helper.vault_command(vault_env, "vault write #{options.dig(:sync).first.dig(:prefix)}/iad/prod/env keyone=#{random_value_one} keytwo=#{random_value_two}")
     end
@@ -53,7 +53,7 @@ RSpec.describe Sanctum::Command::Check do
       helper.vault_setup(secrets_engine: 'kv', secrets_version: 2)
 
       # Write transit encrypted data to local file to test check command
-      Sanctum::VaultTransit.write_to_file(vault_client, { "#{config_path}/#{options.dig(:sync).first.dig(:path)}/iad/dev/env" => { 'keyone' => random_value_one.to_s } }, options[:sanctum][:transit_key])
+      Sanctum::Adapter::Vault::Transit.write_to_file(vault_client, { "#{config_path}/#{options.dig(:sync).first.dig(:path)}/iad/dev/env" => { 'keyone' => random_value_one.to_s } }, options[:sanctum][:transit_key])
       # Write secrets to vault for testing check command
       vault_client.logical.write("#{options.dig(:sync).first.dig(:prefix)}/data/iad/prod/env", data: { keyone: random_value_one.to_s, keytwo: random_value_two.to_s })
     end
