@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sanctum (0.9.0)
+    sanctum (0.9.1)
       gli (~> 2.18)
       hashdiff (~> 1.0)
       tty-editor (~> 0.5)

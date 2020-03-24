@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>=2.5.0'
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
-    exclude = [%r{^(test|spec|features|examples)/}, %r{docker.*}i, %r{*.nix}i, %r{\.gitlab-ci.yml}]
+    exclude = [%r{^(test|spec|features|examples)/}, %r{docker.*}i, %r{\.nix}, %r{\.gitlab-ci.yml}]
     f.match(Regexp.union(exclude))
   end
   spec.bindir        = "bin"
