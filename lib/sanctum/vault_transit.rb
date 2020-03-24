@@ -8,12 +8,6 @@ module Sanctum
     def self.encrypt(vault_client, secrets, transit_key)
       transit_key = Pathname.new(transit_key)
 
-      #TODO probably nice to do this check earlier on,
-      #Such as in command/base
-      unless transit_key_exist?(vault_client, transit_key)
-        raise red("#{transit_key} does not exist")
-      end
-
       secrets.each do |k, v|
         v = encode(v.to_json)
         #TODO: Fix this....
@@ -21,16 +15,27 @@ module Sanctum
         secrets[k] = v
       end
       secrets
+    rescue Vault::HTTPClientError => e
+      if e.code == 403
+        raise red("#{transit_key} either doesn't exist, or you don't have the proper permissions")
+      end
+      raise
     end
 
     def self.decrypt(vault_client, secrets, transit_key)
       transit_key = Pathname.new(transit_key)
+
       secrets.each do |k, v|
         v = vault_client.logical.write("#{transit_key.dirname.to_s.split("/")[0]}/decrypt/#{transit_key.basename}", ciphertext: v)
         v = JSON(decode(v.data[:plaintext]))
         secrets[k] = v
       end
       secrets
+    rescue Vault::HTTPClientError => e
+      if e.code == 403
+        raise red("#{transit_key} either doesn't exist, or you don't have the proper permissions")
+      end
+      raise
     end
 
     # Writes secrets encrypted with transit to local files
@@ -71,14 +76,9 @@ module Sanctum
       Base64.decode64(string)
     end
 
-    def self.transit_key_exist?(vault_client, transit_key)
-      !vault_client.logical.read(transit_key.to_path).nil?
-    end
-
     def self.create_path(path)
       path = Pathname.new(path).parent.to_path
       FileUtils.mkdir_p(path) unless File.directory?(path)
     end
-
   end
 end

@@ -2,13 +2,14 @@
 sanctum:
   force: false
   color: true
+  transit_key: transit/keys/sanctum-test
 
 vault:
   url: http://localhost:8200
-  token: my_cool_token
-  transit_key: transit/keys/sanctum-test
+  token: 1234
 
 sync:
   - name: sanctum-test
+    secrets_version: 2
     prefix: sanctum-test    #Refers to vault
-    path: vault/sanctum-test #Refers to local path relative to sanctum.yaml
+    path: vault/sanctum-test-v2 #Refers to local path relative to sanctum.yaml
