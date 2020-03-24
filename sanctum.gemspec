@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>=2.5.0'
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
-    exclude = [%r{^(test|spec|features|examples)/}, %r{docker.*}i, %r{\.gitlab-ci.yml}]
+    exclude = [%r{^(test|spec|features|examples)/}, %r{docker.*}i, %r{*.nix}i, %r{\.gitlab-ci.yml}]
     f.match(Regexp.union(exclude))
   end
   spec.bindir        = "bin"
@@ -25,14 +25,15 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency 'gli', '~> 2.18'
-  spec.add_dependency 'hashdiff', '~> 0.3'
+  spec.add_dependency 'hashdiff', '~> 1.0'
   spec.add_dependency 'tty-editor', '~> 0.5'
   spec.add_dependency 'vault', '~> 0.12'
 
-  spec.add_development_dependency 'bundler', '~> 1.0'
-  spec.add_development_dependency 'pry', '~> 0.12.0'
-  spec.add_development_dependency 'rake', '~> 12.0'
+  spec.add_development_dependency 'bundler', '~> 2.0'
+  spec.add_development_dependency 'overcommit', '~> 0.52'
+  spec.add_development_dependency 'pry', '~> 0.13.0'
+  spec.add_development_dependency 'rake', '~> 13.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
-  spec.add_development_dependency 'rubocop', '~> 0.65.0'
-  spec.add_development_dependency 'rubocop-rspec', '~> 1.32.0'
+  spec.add_development_dependency 'rubocop', '~> 0.80.0'
+  spec.add_development_dependency 'rubocop-rspec', '~> 1.38.0'
 end

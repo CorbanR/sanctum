@@ -10,7 +10,7 @@ module Sanctum
         first_hash = first_hash.each { |_, v| v.transform_values!(&:to_s) }
         second_hash = second_hash.each { |_, v| v.transform_values!(&:to_s) }
 
-        differences = HashDiff.best_diff(first_hash, second_hash, delimiter: " => ", array_path: true)
+        differences = Hashdiff.best_diff(first_hash, second_hash, delimiter: " => ", array_path: true)
 
         differences.each do |diff|
           if diff[0] == "+"

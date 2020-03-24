@@ -9,7 +9,7 @@ services:
     depends_on:
       - vault
   vault:
-    image: vault:1.0.3
+    image: vault:1.3.3
     environment:
       SKIP_SETCAP: "true"
       VAULT_DEV_ROOT_TOKEN_ID: "514c55f0-c452-99e3-55e0-8301b770b92c"

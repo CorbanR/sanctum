@@ -25,7 +25,7 @@ module Sanctum
             differences = compare_secrets(vault_secrets, local_secrets, target[:name], "pull")
             next if differences.nil?
 
-            #Get uniq array of HashDiff returned paths
+            #Get uniq array of Hashdiff returned paths
             diff_paths = differences.map{|x| x[1][0]}.uniq
 
             #Only sync the differences
