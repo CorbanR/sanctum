@@ -35,3 +35,6 @@ testing:
     - docker-compose down --remove-orphans --volumes
   tags:
     - docker
+
+include:
+  - template: Dependency-Scanning.gitlab-ci.yml
