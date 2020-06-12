@@ -1,29 +1,25 @@
 ---
-image:
-  name: docker/compose:1.23.2
-  entrypoint: ["/bin/sh", "-c"]
-
-variables:
-  COMPOSE_FILE: 'docker-compose.test.yml'
-  # Required for gitlab public runners
-  DOCKER_DRIVER: overlay2
-  DOCKER_HOST: tcp://docker:2375/
-
-services:
-  # Required for gitlab public runners
-  - docker:dind
-
 stages:
   - test
   - cleanup
 
-before_script:
-  - docker version
-  - docker info
-  - docker-compose version
-
 testing:
+  image:
+    name: docker/compose:1.23.2
+    entrypoint: ["/bin/sh", "-c"]
+  variables:
+    COMPOSE_FILE: 'docker-compose.test.yml'
+    # Required for gitlab public runners
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375/
+  services:
+    # Required for gitlab public runners
+    - docker:dind
   stage: test
+  before_script:
+    - docker version
+    - docker info
+    - docker-compose version
   script:
     - docker-compose build --pull --parallel --compress
     - docker-compose run --name ${CI_JOB_ID} -T --rm sanctum ls -lart -hu
@@ -36,5 +32,10 @@ testing:
   tags:
     - docker
 
-include:
-  - template: Dependency-Scanning.gitlab-ci.yml
+dependency_scan:
+  stage: test
+  inherit:
+    default: false
+    variables: false
+  include:
+    - template: Dependency-Scanning.gitlab-ci.yml
