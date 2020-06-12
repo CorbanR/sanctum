@@ -1,4 +1,7 @@
 ---
+include:
+  - template: Dependency-Scanning.gitlab-ci.yml
+
 stages:
   - test
   - cleanup
@@ -31,11 +34,3 @@ testing:
     - docker-compose down --remove-orphans --volumes
   tags:
     - docker
-
-dependency_scan:
-  stage: test
-  inherit:
-    default: false
-    variables: false
-  include:
-    - template: Dependency-Scanning.gitlab-ci.yml
